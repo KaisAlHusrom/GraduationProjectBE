@@ -15,10 +15,13 @@
                 $table->uuid("id")->primary();
                 $table->uuid("element_type_id");
                 $table->foreign('element_type_id')->references('id')->on('element_types')->onDelete('restrict');
+                $table->uuid("children_id")->nullable();
+                $table->foreign('children_id')->references('id')->on('elements')->onDelete('cascade');
                 $table->string("element_title");
                 $table->text("element_description");
                 $table->string("element_image")->nullable();
                 $table->boolean("is_template")->default(false);
+                $table->integer("sequence_number")->nullable(); // if null then it's not the child of other element.
                 $table->softDeletes();
                 $table->timestamps();
             });

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreign('section_id')->references('id')->on('sections')->onDelete('cascade');
             $table->uuid("component_id");
             $table->foreign('component_id')->references('id')->on('components')->onDelete('cascade');
+            $table->integer("sequence_number");
             $table->timestamps();
         });
     }
