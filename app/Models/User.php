@@ -22,7 +22,12 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
+        'is_admin',
+        'birth_date',
+        'total_balance',
+        'withdrawable_balance',
         'email',
         'password',
     ];
@@ -57,5 +62,40 @@ class User extends Authenticatable
     public function productReviews()
     {
         return $this->hasMany(ProductReview::class);
+    }
+
+    /**
+     * Get the payment plans associated with the user.
+     */
+    public function paymentPlans()
+    {
+        return $this->belongsToMany(PaymentPlan::class, 'users_payment_plans')
+            ->withPivot('status', 'expire-date', 'is_active', 'bill_date')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the payments for the user.
+     */
+    public function payments()
+    {
+        return $this->hasMany(UsersPayment::class);
+    }
+
+
+    /**
+     * Get the discounts for the user.
+     */
+    public function discounts()
+    {
+        return $this->hasMany(ProductsDiscount::class);
+    }
+
+    /**
+     * Get the messages sent by the user.
+     */
+    public function sentMessages()
+    {
+        return $this->hasMany(UserProductOwnerMessage::class, 'sender_id');
     }
 }

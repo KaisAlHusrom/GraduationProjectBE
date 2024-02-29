@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('profile_image');
             $table->boolean("is_admin")->default(false);
             $table->date("birth_date");
-            $table->decimal('total_balance', 10, 2);
-            $table->decimal('withdrawable_balance', 10, 2);
+            $table->decimal('total_balance', 10, 2)->default(0);
+            $table->decimal('withdrawable_balance', 10, 2)->default(0);
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
