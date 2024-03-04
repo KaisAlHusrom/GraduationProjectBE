@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Database extends Model
+class Database extends BaseModel
 {
     use HasFactory;
 
@@ -16,6 +16,16 @@ class Database extends Model
      */
     protected $fillable = [
         'database_name',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'id' => 'string',
+        // Add any other attributes that you want to cast here
     ];
 
     /**

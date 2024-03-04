@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TableColumn extends Model
+class TableColumn extends BaseModel
 {
     use HasFactory;
 
@@ -19,6 +19,16 @@ class TableColumn extends Model
         'is_pk',
         'is_fk',
         'data_type_id',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'id' => 'string',
+        // Add any other attributes that you want to cast here
     ];
 
     /**

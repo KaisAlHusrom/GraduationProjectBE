@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Element extends Model
+class Element extends BaseModel
 {
     use HasFactory, SoftDeletes;
 
@@ -18,6 +18,16 @@ class Element extends Model
         'element_image',
         'is_template',
         'sequence_number',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'id' => 'string',
+        // Add any other attributes that you want to cast here
     ];
 
     /**

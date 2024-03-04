@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class UserProductOwnerMessage extends Model
+class UserProductOwnerMessage extends BaseModel
 {
     use HasFactory;
 
@@ -18,6 +18,16 @@ class UserProductOwnerMessage extends Model
         'sender_id',
         'product_id',
         'message',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'id' => 'string',
+        // Add any other attributes that you want to cast here
     ];
 
     /**

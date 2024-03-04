@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ColumnsDataType extends Model
+class ColumnsDataType extends BaseModel
 {
     use HasFactory;
 
@@ -17,6 +17,16 @@ class ColumnsDataType extends Model
     protected $fillable = [
         'column_id',
         'data_type_id',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'id' => 'string',
+        // Add any other attributes that you want to cast here
     ];
 
     /**

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class DataType extends Model
+class DataType extends BaseModel
 {
     use HasFactory, SoftDeletes;
 
@@ -18,6 +18,16 @@ class DataType extends Model
     protected $fillable = [
         'data_type_name',
         'data_type_description',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'id' => 'string',
+        // Add any other attributes that you want to cast here
     ];
 
     /**

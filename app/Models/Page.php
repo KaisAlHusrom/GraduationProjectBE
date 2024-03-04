@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Page extends Model
+class Page extends BaseModel
 {
     use HasFactory, SoftDeletes;
 
@@ -20,6 +20,16 @@ class Page extends Model
         'page_description',
         'page_image',
         'is_template',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'id' => 'string',
+        // Add any other attributes that you want to cast here
     ];
 
     // Define a many-to-many relationship with the WebProject model

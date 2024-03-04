@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ElementProp extends Model
+class ElementProp extends BaseModel
 {
     use HasFactory, SoftDeletes;
 
@@ -18,6 +18,16 @@ class ElementProp extends Model
     protected $fillable = [
         'element_prop_name',
         'element_prop_description',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'id' => 'string',
+        // Add any other attributes that you want to cast here
     ];
 
     /**

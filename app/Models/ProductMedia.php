@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ProductMedia extends Model
+class ProductMedia extends BaseModel
 {
     use HasFactory;
 
@@ -18,6 +18,16 @@ class ProductMedia extends Model
         'product_id',
         'product_media_name',
         'is_video',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'id' => 'string',
+        // Add any other attributes that you want to cast here
     ];
 
     /**

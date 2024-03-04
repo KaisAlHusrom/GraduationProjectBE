@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ProductReview extends Model
+class ProductReview extends BaseModel
 {
     use HasFactory;
 
@@ -21,6 +21,16 @@ class ProductReview extends Model
         'ease_of_use_rate',
         'communication_rate',
         'comment',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'id' => 'string',
+        // Add any other attributes that you want to cast here
     ];
 
     /**

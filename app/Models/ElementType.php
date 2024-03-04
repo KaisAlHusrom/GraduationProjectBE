@@ -6,9 +6,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ElementType extends Model
+class ElementType extends BaseModel
 {
     use HasFactory, SoftDeletes;
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'id' => 'string',
+        'is_child' => 'boolean',
+        // Add any other attributes that you want to cast here
+    ];
 
     /**
      * The attributes that are mass assignable.
@@ -19,15 +30,17 @@ class ElementType extends Model
         'element_type_name',
         'element_type_description',
         'is_child',
-        'children_id',
+        'parent_id',
     ];
+
+
 
     /**
      * Get the parent element type if this element type is a child.
      */
     public function parent()
     {
-        return $this->belongsTo(ElementType::class, 'children_id');
+        return $this->belongsTo(ElementType::class, 'parent_id');
     }
 
     /**
@@ -35,7 +48,7 @@ class ElementType extends Model
      */
     public function children()
     {
-        return $this->hasMany(ElementType::class, 'children_id');
+        return $this->hasMany(ElementType::class, 'parent_id');
     }
 
     /**

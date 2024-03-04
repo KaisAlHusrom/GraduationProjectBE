@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ProductFeature extends Model
+class ProductFeature extends BaseModel
 {
     use HasFactory;
 
@@ -18,6 +18,16 @@ class ProductFeature extends Model
         'product_id',
         'product_feature_name',
         'product_feature_description',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'id' => 'string',
+        // Add any other attributes that you want to cast here
     ];
 
     /**

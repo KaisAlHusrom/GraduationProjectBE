@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PaymentPlanFeature extends Model
+class PaymentPlanFeature extends BaseModel
 {
     use HasFactory;
 
@@ -18,6 +18,16 @@ class PaymentPlanFeature extends Model
         'payment_plan_feature_name',
         'payment_plan_feature_image',
         'payment_plan_feature_description',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'id' => 'string',
+        // Add any other attributes that you want to cast here
     ];
 
     /**

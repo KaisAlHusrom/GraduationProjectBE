@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TablesRelationship extends Model
+class TablesRelationship extends BaseModel
 {
     use HasFactory;
 
@@ -18,6 +18,16 @@ class TablesRelationship extends Model
         'main_column_id',
         'linked_column_id',
         'relation_type_id',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'id' => 'string',
+        // Add any other attributes that you want to cast here
     ];
 
     /**

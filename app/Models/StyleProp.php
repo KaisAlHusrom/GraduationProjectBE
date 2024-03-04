@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class StyleProp extends Model
+class StyleProp extends BaseModel
 {
     use HasFactory, SoftDeletes;
 
@@ -25,6 +25,16 @@ class StyleProp extends Model
         'is_section',
         'is_component',
         'is_element',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'id' => 'string',
+        // Add any other attributes that you want to cast here
     ];
 
     /**

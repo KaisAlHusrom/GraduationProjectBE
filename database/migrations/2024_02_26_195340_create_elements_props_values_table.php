@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -12,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('elements_props_values', function (Blueprint $table) {
-            $table->uuid("id")->primary();
+            $table->uuid("id")->primary()->default(DB::raw('UUID()'));;
             $table->uuid("component_element_id");
             $table->foreign('component_element_id')->references('id')->on('components_elements')->onDelete('cascade');
             $table->uuid("element_type_prop_id");
