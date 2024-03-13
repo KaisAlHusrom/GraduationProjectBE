@@ -17,19 +17,13 @@ class ElementPropController extends Controller
     }
 
     /**
-     * showWithTrashed
+     * Display a listing of the deleted resource.
      */
-    public function indexWithOutTrashed()
+    public function fetchDeleted()
     {
+        $deletedElementProps = ElementProp::onlyTrashed()->with(["elementTypes"])->get();
 
-    }
-
-    /**
-     * Display trashed values only
-     */
-    public function indexTrashedOnly()
-    {
-
+        return DefaultResponseBodies::getSuccessResponse($deletedElementProps, "Get All Deleted Element Props Successfully");
     }
 
     /**
@@ -37,30 +31,25 @@ class ElementPropController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validationRules = [
             "element_prop_name" => 'required|unique:element_props',
             "element_prop_description" => 'required',
-            "element_types" => 'array', // Ensure element_types is an array
-        ]);
+            "elementTypes" => 'array', // Ensure element_types is an array
+        ];
 
-        // Create the ElementProp
-        $elementProp = ElementProp::create([
-            "element_prop_name" => $request->element_prop_name,
-            "element_prop_description" => $request->element_prop_description,
-        ]);
+        //relations
+        $relationships = [
+            "elementTypes" => $request->input('elementTypes', [])
+        ];
 
-        // Ensure ElementProp is created successfully
-        if ($elementProp) {
-
-            // Attach ElementTypes if provided
-            $elementTypesIds = $request->input('element_types', []);
-            $elementProp->elementTypes()->attach($elementTypesIds);
-
-            return DefaultResponseBodies::getSuccessResponse($elementProp, "Save Element Prop Successfully");
-        } else {
-            // Handle error if ElementProp creation fails
-            return DefaultResponseBodies::getBadRequestResponse(message: "Failed to create Element Prop");
-        }
+        // store the prop
+        return $this->storeTemplate(
+            title: "Element Props",
+            request: $request,
+            modelClass: ElementProp::class,
+            validationRules: $validationRules,
+            relationships: $relationships
+        );
     }
 
 
@@ -88,20 +77,63 @@ class ElementPropController extends Controller
         $elementTypeIds = collect($elementTypesData)->pluck('id')->toArray();
         $elementProp->elementTypes()->sync($elementTypeIds);
 
-        // Optionally, you can return a response indicating success
+
         return DefaultResponseBodies::getSuccessResponse($elementProp, "Update Element Prop Successfully");
     }
 
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified resources from storage.
      */
-    public function destroy(ElementProp $elementProp)
+    public function destroy($ids)
     {
-        if ($elementProp->delete()) {
-            return DefaultResponseBodies::getSuccessResponse(message: "Element Prop deleted successfully");
+        // Convert comma-separated IDs to an array
+        $idArray = explode(',', $ids);
+
+        // Delete the selected element props
+        $deletedCount = ElementProp::whereIn('id', $idArray)->delete();
+
+        if ($deletedCount > 0) {
+            return DefaultResponseBodies::getSuccessResponse(message: "Element Props deleted successfully");
         } else {
-            return DefaultResponseBodies::getNotFoundResponse(message: "Element Prop not found");
+            return DefaultResponseBodies::getNotFoundResponse(message: "Element Props not found");
+        }
+    }
+
+
+    /**
+     * Restore the deleted specified resource from storage.
+     */
+    public function restore($ids)
+    {
+        // Convert comma-separated IDs to an array
+        $idArray = explode(',', $ids);
+
+        // Delete the selected element props
+        $restoredCount = ElementProp::whereIn('id', $idArray)->restore();
+
+        if ($restoredCount > 0) {
+            return DefaultResponseBodies::getSuccessResponse(message: "Element Props restored successfully");
+        } else {
+            return DefaultResponseBodies::getNotFoundResponse(message: "Element Props not found");
+        }
+    }
+
+    /**
+     * Permanently delete the specified resources.
+     */
+    public function permanentDelete($ids)
+    {
+        // Convert comma-separated IDs to an array
+        $idArray = explode(',', $ids);
+
+        // Permanently delete the selected element props
+        $deletedCount = ElementProp::whereIn('id', $idArray)->forceDelete();
+
+        if ($deletedCount > 0) {
+            return DefaultResponseBodies::getSuccessResponse(message: "Element Props permanently deleted successfully");
+        } else {
+            return DefaultResponseBodies::getNotFoundResponse(message: "Element Props not found");
         }
     }
 }

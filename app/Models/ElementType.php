@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ElementType extends BaseModel
@@ -38,7 +39,7 @@ class ElementType extends BaseModel
     /**
      * Get the parent element type if this element type is a child.
      */
-    public function parent()
+    public function parent() : BelongsTo
     {
         return $this->belongsTo(ElementType::class, 'parent_id');
     }

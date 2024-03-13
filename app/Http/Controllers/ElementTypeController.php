@@ -30,43 +30,32 @@ class ElementTypeController extends Controller
         return DefaultResponseBodies::getSuccessResponse($deletedElementTypes, "Get All Deleted Element Types Successfully");
     }
 
-    /**
-     * Display trashed values only
-     */
-    public function indexTrashedOnly()
-    {
-
-    }
-
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validationRules = [
             "element_type_name" => 'required|unique:element_types',
             "element_type_description" => 'required',
+            'is_child' => "",
+        ];
 
-        ]);
+        $relationships = [
+            "elementProps" => $request->input('elementProps', []),
+            "parent" => [$request->input('parent', null)],
+        ];
 
-        $elementType = ElementType::create([
-            "element_type_name" => $request->element_type_name,
-            "element_type_description" => $request->element_type_description,
-            "is_child" => $request->is_child,
-            "parent_id" => $request->parent_id,
-        ]);
+        // Call storeTemplate function to store the post and its related models
+        return $this->storeTemplate(
+            title: "Element Types",
+            request: $request,
+            modelClass: ElementType::class,
+            validationRules: $validationRules,
+            relationships: $relationships
+        );
 
-        // If children are provided in the request, associate them
-        if ($request->has('element_props')) {
-            $elementPropsIds = $request->input('element_props', []);
-
-            $elementType->elementProps()->attach($elementPropsIds);
-
-
-        }
-
-        return DefaultResponseBodies::getSuccessResponse($elementType, "Save Element Type Successfully");
     }
 
     /**
@@ -84,82 +73,80 @@ class ElementTypeController extends Controller
      */
     public function update(Request $request, ElementType $elementType)
     {
-        $request->validate([
-            "element_type_name" => 'required|unique:element_types,element_type_name,' . $elementType->id,
+        $validationRules = [
+            "element_type_name" => 'required|unique:element_types,element_type_name,'.$elementType->id,
             "element_type_description" => 'required',
-        ]);
+            'is_child' => "",
+        ];
 
-        // Update the basic attributes
-        $elementType->update([
-            'element_type_name' => $request->input('element_type_name'),
-            'element_type_description' => $request->input('element_type_description'),
-            'is_child' => $request->input('is_child'),
-        ]);
+        //the rows came from index function, in $request->input("make sure the name here be the same with the name in database table")
+        $relationships = [
+            "elementProps" => $request->input('elementProps', []),
+            "children" => $request->input('children', []),
+            "parent" => [$request->input('parent_id', null)],
+        ];
 
-        // Update parent if provided in the request
-        if ($request->has('parent')) {
-            $parentData = $request->input('parent');
-
-            // Make sure parent data is provided and is not empty
-            if (!empty($parentData)) {
-                $elementType->parent_id = $parentData['id'];
-            } else {
-                // If parent data is empty or not provided, set parent_id to null
-                $elementType->parent_id = null;
-            }
-        }
-
-        // Update children if provided in the request
-        if ($request->has('children')) {
-            $childrenData = $request->input('children');
-
-            // Check if children data is provided and contains more than one child
-            if (!empty($childrenData)) {
-                // Update the parent_id of each child to the new parent_id
-                ElementType::whereIn('id', array_column($childrenData, 'id'))
-                    ->update(['parent_id' => $elementType->id]);
-            }
-        }
-
-        // If children are provided in the request, associate them
-        if ($request->has('element_props')) {
-            // Sync ElementTypes if provided
-            $elementPropsData = $request->input('element_props', []);
-            $elementPropIds = collect($elementPropsData)->pluck('id')->toArray();
-            $elementType->elementProps()->sync($elementPropIds);
-
-
-        }
-
-        // Save the changes
-        $elementType->save();
-
-        // Optionally, you can return a response indicating success
-        return DefaultResponseBodies::getSuccessResponse($elementType, "Update Element Type Successfully");
+        // Call storeTemplate function to store the post and its related models
+        return $this->updateTemplate(
+            title: "Element Types",
+            request: $request,
+            resource: $elementType,
+            validationRules: $validationRules,
+            relationships: $relationships
+        );
     }
 
         /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ElementType $elementType)
+    public function destroy($ids)
     {
-        if ($elementType->delete()) {
-            return DefaultResponseBodies::getSuccessResponse(message: "Element Type deleted successfully");
+        // Convert comma-separated IDs to an array
+        $idArray = explode(',', $ids);
+
+        // Delete the selected element props
+        $deletedCount = ElementType::whereIn('id', $idArray)->delete();
+
+        if ($deletedCount > 0) {
+            return DefaultResponseBodies::getSuccessResponse(message: "Element Types deleted successfully");
         } else {
-            return DefaultResponseBodies::getNotFoundResponse(message: "Element Type not found");
+            return DefaultResponseBodies::getNotFoundResponse(message: "Element Types not found");
         }
     }
 
     /**
      * Restore the deleted specified resource from storage.
      */
-    public function restore($elementTypeId)
+    public function restore($ids)
     {
-        $elementType = ElementType::withTrashed()->where('id', $elementTypeId)->first();
-        if ($elementType->restore()) {
-            return DefaultResponseBodies::getSuccessResponse(message: "Element Type restored successfully");
+        // Convert comma-separated IDs to an array
+        $idArray = explode(',', $ids);
+
+        // Delete the selected element props
+        $restoredCount = ElementType::whereIn('id', $idArray)->restore();
+
+        if ($restoredCount > 0) {
+            return DefaultResponseBodies::getSuccessResponse(message: "Element Types restored successfully");
         } else {
-            return DefaultResponseBodies::getNotFoundResponse(message: "Element Type not found");
+            return DefaultResponseBodies::getNotFoundResponse(message: "Element Types not found");
+        }
+    }
+
+    /**
+     * Permanently delete the specified resources.
+     */
+    public function permanentDelete($ids)
+    {
+        // Convert comma-separated IDs to an array
+        $idArray = explode(',', $ids);
+
+        // Permanently delete the selected element props
+        $deletedCount = ElementType::whereIn('id', $idArray)->forceDelete();
+
+        if ($deletedCount > 0) {
+            return DefaultResponseBodies::getSuccessResponse(message: "Element Types permanently deleted successfully");
+        } else {
+            return DefaultResponseBodies::getNotFoundResponse(message: "Element Types not found");
         }
     }
 

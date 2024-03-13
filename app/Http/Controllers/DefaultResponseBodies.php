@@ -62,6 +62,19 @@ class DefaultResponseBodies extends Controller
         ], 500);
     }
 
+    public static function getValidationErrorResponse(
+        $error = "Validation Error",
+        $message = "422 Validation error",
+        $errors = []
+        ) {
+        return response()->json([
+            'success' => false,
+            'error' => $error,
+            'errors' => $errors,
+            'message' => $message
+        ], 422);
+    }
+
 
 }
 
