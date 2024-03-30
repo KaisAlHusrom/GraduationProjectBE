@@ -4,32 +4,44 @@ namespace App\Http\Controllers;
 
 use App\Models\ElementProp;
 use App\Models\ElementType;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ElementPropController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request): JsonResponse
     {
-        return DefaultResponseBodies::getSuccessResponse(ElementProp::all()->load(["elementTypes"]), "Get All Element Props Successfully");
+        return $this->indexTemplate(
+            title: "Element Props",
+            request: $request,
+            modelClass: ElementProp::class,
+            with: ['elementTypes'],
+            perPage: 10,
+        );
     }
 
     /**
      * Display a listing of the deleted resource.
      */
-    public function fetchDeleted()
+    public function fetchDeleted(Request $request): JsonResponse
     {
-        $deletedElementProps = ElementProp::onlyTrashed()->with(["elementTypes"])->get();
-
-        return DefaultResponseBodies::getSuccessResponse($deletedElementProps, "Get All Deleted Element Props Successfully");
+        return $this->fetchDeletedTemplate(
+            title: "Element Props",
+            request: $request,
+            modelClass: ElementProp::class,
+            with: ['elementTypes'],
+            perPage: 10,
+        );
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $validationRules = [
             "element_prop_name" => 'required|unique:element_props',
@@ -42,13 +54,15 @@ class ElementPropController extends Controller
             "elementTypes" => $request->input('elementTypes', [])
         ];
 
+
+
         // store the prop
         return $this->storeTemplate(
             title: "Element Props",
             request: $request,
             modelClass: ElementProp::class,
             validationRules: $validationRules,
-            relationships: $relationships
+            relationships: $relationships,
         );
     }
 
@@ -57,83 +71,64 @@ class ElementPropController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ElementProp $elementProp)
+    public function update(Request $request, ElementProp $elementProp): JsonResponse
     {
-        $request->validate([
-            "element_prop_name" => 'required|unique:element_props,element_prop_name,' . $elementProp->id,
+        $validationRules = [
+            "element_prop_name" => 'required|unique:element_props,element_prop_name,' . $elementProp['id'],
             "element_prop_description" => 'required',
             "element_types" => 'array', // Ensure element_types is an array
-        ]);
+        ];
 
-        // Update the basic attributes
-        $elementProp->update([
-            'element_prop_name' => $request->input('element_prop_name'),
-            'element_prop_description' => $request->input('element_prop_description'),
-        ]);
+        //relations
+        $relationships = [
+            "elementTypes" => $request->input('elementTypes', [])
+        ];
 
-
-        // Sync ElementTypes if provided
-        $elementTypesData = $request->input('element_types', []);
-        $elementTypeIds = collect($elementTypesData)->pluck('id')->toArray();
-        $elementProp->elementTypes()->sync($elementTypeIds);
-
-
-        return DefaultResponseBodies::getSuccessResponse($elementProp, "Update Element Prop Successfully");
+        // Call storeTemplate function to store the post and its related models
+        return $this->updateTemplate(
+            title: "Element Props",
+            request: $request,
+            resource: $elementProp,
+            validationRules: $validationRules,
+            relationships: $relationships
+        );
     }
 
 
     /**
      * Remove the specified resources from storage.
      */
-    public function destroy($ids)
+    public function destroy($ids): JsonResponse
     {
-        // Convert comma-separated IDs to an array
-        $idArray = explode(',', $ids);
-
-        // Delete the selected element props
-        $deletedCount = ElementProp::whereIn('id', $idArray)->delete();
-
-        if ($deletedCount > 0) {
-            return DefaultResponseBodies::getSuccessResponse(message: "Element Props deleted successfully");
-        } else {
-            return DefaultResponseBodies::getNotFoundResponse(message: "Element Props not found");
-        }
+        return $this->destroyTemplate(
+            ids: $ids,
+            modelClass: ElementProp::class,
+            title: "Element Props",
+        );
     }
 
 
     /**
      * Restore the deleted specified resource from storage.
      */
-    public function restore($ids)
+    public function restore($ids): JsonResponse
     {
-        // Convert comma-separated IDs to an array
-        $idArray = explode(',', $ids);
-
-        // Delete the selected element props
-        $restoredCount = ElementProp::whereIn('id', $idArray)->restore();
-
-        if ($restoredCount > 0) {
-            return DefaultResponseBodies::getSuccessResponse(message: "Element Props restored successfully");
-        } else {
-            return DefaultResponseBodies::getNotFoundResponse(message: "Element Props not found");
-        }
+        return $this->restoreTemplate(
+            ids: $ids,
+            modelClass: ElementProp::class,
+            title: "Element Props",
+        );
     }
 
     /**
      * Permanently delete the specified resources.
      */
-    public function permanentDelete($ids)
+    public function permanentDelete($ids): JsonResponse
     {
-        // Convert comma-separated IDs to an array
-        $idArray = explode(',', $ids);
-
-        // Permanently delete the selected element props
-        $deletedCount = ElementProp::whereIn('id', $idArray)->forceDelete();
-
-        if ($deletedCount > 0) {
-            return DefaultResponseBodies::getSuccessResponse(message: "Element Props permanently deleted successfully");
-        } else {
-            return DefaultResponseBodies::getNotFoundResponse(message: "Element Props not found");
-        }
+        return $this->permanentDeleteTemplate(
+            ids: $ids,
+            modelClass: ElementProp::class,
+            title: "Element Props",
+        );
     }
 }

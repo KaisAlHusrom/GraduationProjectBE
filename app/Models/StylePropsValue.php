@@ -16,10 +16,10 @@ class StylePropsValue extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'style_prop_id',
         'style_prop_value_normal_name',
         'style_prop_value_css_name',
         'style_prop_value_image',
+        'style_prop_id'
     ];
 
     /**

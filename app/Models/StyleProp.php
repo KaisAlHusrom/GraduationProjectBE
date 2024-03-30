@@ -34,13 +34,16 @@ class StyleProp extends BaseModel
      */
     protected $casts = [
         'id' => 'string',
+        "is_section" => "bool",
+        "is_component" => "bool",
+        "is_element" => "bool",
         // Add any other attributes that you want to cast here
     ];
 
     /**
      * Get the category that owns the style property.
      */
-    public function category()
+    public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(StylePropsCategory::class, 'category_id');
     }
@@ -48,7 +51,7 @@ class StyleProp extends BaseModel
     /**
      * Get the options
      */
-    public function options()
+    public function options(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(StylePropsValue::class, 'style_prop_id');
     }

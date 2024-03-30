@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ElementProp extends BaseModel
@@ -33,7 +34,7 @@ class ElementProp extends BaseModel
     /**
      * get element types of this props
      */
-    public function elementTypes()
+    public function elementTypes(): BelongsToMany
     {
         return $this->belongsToMany(ElementType::class, 'element_types_props');
     }

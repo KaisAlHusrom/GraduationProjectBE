@@ -22,7 +22,7 @@ class StylePropsCategory extends BaseModel
         // Add any other attributes that you want to cast here
     ];
 
-    public function styleProps()
+    public function styleProps(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(StyleProp::class, 'category_id');
     }

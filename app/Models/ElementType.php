@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ElementType extends BaseModel
@@ -55,7 +56,7 @@ class ElementType extends BaseModel
     /**
      * get element props of this type
      */
-    public function elementProps()
+    public function elementProps() : BelongsToMany
     {
         return $this->belongsToMany(ElementProp::class, 'element_types_props');
     }
