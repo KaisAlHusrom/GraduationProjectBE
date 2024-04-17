@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StylePropsValue extends BaseModel
@@ -19,7 +18,7 @@ class StylePropsValue extends BaseModel
         'style_prop_value_normal_name',
         'style_prop_value_css_name',
         'style_prop_value_image',
-        'style_prop_id'
+        'style_prop_id',
     ];
 
     /**
@@ -37,6 +36,6 @@ class StylePropsValue extends BaseModel
      */
     public function styleProp(): BelongsTo
     {
-        return $this->belongsTo(StyleProp::class);
+        return $this->belongsTo(StyleProp::class, 'style_prop_id');
     }
 }

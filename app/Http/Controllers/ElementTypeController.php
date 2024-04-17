@@ -22,7 +22,7 @@ class ElementTypeController extends Controller
             title: "Element Types",
             request: $request,
             modelClass: ElementType::class,
-            with: ['children', 'elementProps', 'parent'],
+            with: ['children.children.children.children', 'elementProps', 'parent'],
             perPage: 10,
         );
     }
@@ -50,7 +50,9 @@ class ElementTypeController extends Controller
         $validationRules = [
             "element_type_name" => 'required|unique:element_types',
             "element_type_description" => 'required',
+            "sequence_number" => '',
             'is_child' => "",
+            'parent_id' => "",
         ];
 
         $relationships = [
@@ -87,14 +89,15 @@ class ElementTypeController extends Controller
         $validationRules = [
             "element_type_name" => 'required|unique:element_types,element_type_name,'.$elementType->id,
             "element_type_description" => 'required',
+            "sequence_number" => '',
             'is_child' => "",
+            'parent_id' => "",
         ];
 
         //the rows came from index function, in $request->input("make sure the name here be the same with the name in database table")
         $relationships = [
             "elementProps",
             "children",
-            "parent",
         ];
 
         // Call storeTemplate function to store the post and its related models

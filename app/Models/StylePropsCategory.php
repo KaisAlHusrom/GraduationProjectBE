@@ -10,7 +10,7 @@ class StylePropsCategory extends BaseModel
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['category_name', 'category_description'];
+    protected $fillable = ['category_name', 'category_description', 'category_image'];
 
     /**
      * The attributes that should be cast.

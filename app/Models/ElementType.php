@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ElementType extends BaseModel
@@ -33,6 +34,7 @@ class ElementType extends BaseModel
         'element_type_description',
         'is_child',
         'parent_id',
+        'sequence_number'
     ];
 
 
@@ -48,10 +50,11 @@ class ElementType extends BaseModel
     /**
      * Get the child element types if this element type is a parent.
      */
-    public function children()
+    public function children(): HasMany
     {
         return $this->hasMany(ElementType::class, 'parent_id');
     }
+
 
     /**
      * get element props of this type

@@ -51,7 +51,7 @@ class ElementPropController extends Controller
 
         //relations
         $relationships = [
-            "elementTypes" => $request->input('elementTypes', [])
+            "elementTypes",
         ];
 
 
@@ -81,7 +81,7 @@ class ElementPropController extends Controller
 
         //relations
         $relationships = [
-            "elementTypes" => $request->input('elementTypes', [])
+            "elementTypes",
         ];
 
         // Call storeTemplate function to store the post and its related models

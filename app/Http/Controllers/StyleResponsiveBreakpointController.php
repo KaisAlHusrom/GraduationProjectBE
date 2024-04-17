@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\StyleResponsiveBreakpoint;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class StyleResponsiveBreakpointController extends Controller
 {
             private const TITLE = "Style Responsive Breakpoints";
             private const MODEL = StyleResponsiveBreakpoint::class;
-            private const FILES_FIELD_NAMES = ["style_responsive_break_point_image"];
             private const FETCH_WITH = [];
+            private const FILES_FIELD_NAMES = ["style_responsive_break_point_image"];
             private const IMAGES_FOLDER_NAME = "StyleResponsiveBreakpointImages";
             private const FILES_FOLDER_NAME = null;
 
@@ -80,7 +81,9 @@ class StyleResponsiveBreakpointController extends Controller
              */
             public function update(Request $request, StyleResponsiveBreakpoint $styleResponsiveBreakpoint): JsonResponse
             {
-                //TODO: can't update because of unique
+
+                //TODO: can't update because styleResponsiveBreakpoint is empty array []
+                Log::info("style responsive breakpoint: ". json_encode($styleResponsiveBreakpoint));
                 $validationRules = [
                     'style_responsive_break_point_normal_name' => "required|unique:style_responsive_breakpoints,style_responsive_break_point_normal_name,".$styleResponsiveBreakpoint['id'],
                     'style_responsive_break_point_css_name' => "required|unique:style_responsive_breakpoints,style_responsive_break_point_css_name,".$styleResponsiveBreakpoint['id'],

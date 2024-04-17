@@ -16,7 +16,7 @@ return new class extends Migration
             $table->uuid("id")->primary()->default(DB::raw('UUID()'));;
             $table->string("element_type_name")->unique();
             $table->string("element_type_description");
-            $table->string("is_child")->default(false);
+            $table->boolean("is_child")->default(false);
             $table->uuid("parent_id")->nullable();
             $table->foreign('parent_id')->references('id')->on('element_types')->onDelete('restrict');
             $table->softDeletes();

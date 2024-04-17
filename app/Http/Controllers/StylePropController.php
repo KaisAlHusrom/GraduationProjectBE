@@ -15,7 +15,7 @@ class StylePropController extends Controller
     private const IMAGES_FOLDER_NAME = "StylePropsImages";
     private const FILES_FOLDER_NAME = null;
     private const FILES_FIELD_NAMES = ["style_prop_image"];
-    private const FETCH_WITH = ["category", "options"];
+    private const FETCH_WITH = ["category", "options", "children", "parent"];
     /**
          * Display a listing of the resource.
          */
@@ -59,10 +59,15 @@ class StylePropController extends Controller
                 'is_component'=>"boolean",
                 'is_element'=>"boolean",
                 "category_id"=>"required",
+                'is_child'=>"",
+                'parent_id'=>"",
+                'locateTypes'=>"",
             ];
 
             //relations
-            $relationships = [];
+            $relationships = [
+
+            ];
 
 
 //            Log::info("style_prop_image". json_encode($request->input("style_prop_image", null),));
@@ -87,6 +92,7 @@ class StylePropController extends Controller
          */
         public function update(Request $request, StyleProp $styleProp): JsonResponse
         {
+            Log::info("propValue: ". json_encode($styleProp));
             $validationRules = [
                 'style_prop_normal_name'=>"required|unique:style_props,style_prop_normal_name,".$styleProp['id'],
                 'style_prop_css_name'=>"required|unique:style_props,style_prop_css_name,".$styleProp["id"],
@@ -96,12 +102,16 @@ class StylePropController extends Controller
                 'is_section'=>"boolean",
                 'is_component'=>"boolean",
                 'is_element'=>"boolean",
+                'is_child'=>"",
+                'parent_id'=>"",
+                'category_id'=>"",
+                'locateTypes'=>"",
             ];
 
 
             //relations
             $relationships = [
-                "category",
+                "children"
             ];
 
 

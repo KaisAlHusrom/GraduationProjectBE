@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 
 class StylePropsCategoryController extends Controller
 {
+        private const FILES_FIELD_NAMES = ["category_image"];
+        private const IMAGES_FOLDER_NAME = "StylePropsCategoryImages";
+        private const FILES_FOLDER_NAME = null;
         /**
          * Display a listing of the resource.
          */
@@ -55,7 +58,10 @@ class StylePropsCategoryController extends Controller
                 request: $request,
                 modelClass: StylePropsCategory::class,
                 validationRules: $validationRules,
-                relationships: $relationships
+                relationships: $relationships,
+                files: $this::FILES_FIELD_NAMES,
+                filesFolderName: $this::FILES_FOLDER_NAME,
+                imagesFolderName: $this::IMAGES_FOLDER_NAME
             );
         }
 
@@ -81,7 +87,10 @@ class StylePropsCategoryController extends Controller
                 request: $request,
                 resource: $stylePropsCategory,
                 validationRules: $validationRules,
-                relationships: $relationships
+                relationships: $relationships,
+                files: $this::FILES_FIELD_NAMES,
+                filesFolderName: $this::FILES_FOLDER_NAME,
+                imagesFolderName: $this::IMAGES_FOLDER_NAME,
             );
         }
 
@@ -120,6 +129,9 @@ class StylePropsCategoryController extends Controller
                 ids: $ids,
                 modelClass: StylePropsCategory::class,
                 title: "Style Props Category",
+                fileColumnNames: $this::FILES_FIELD_NAMES,
+                filesFolderName: $this::FILES_FOLDER_NAME,
+                imagesFolderName: $this::IMAGES_FOLDER_NAME
             );
         }
 

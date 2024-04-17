@@ -31,6 +31,7 @@ function generateResourceRoutes($prefix, $controller): void
         Route::put('restore/{ids}', [$controller, 'restore']);
         Route::delete('{ids}', [$controller, 'destroy']);
         Route::delete('permanent-delete/{ids}', [$controller, 'permanentDelete']);
+//        Route::patch('{id}', [$controller, 'update']);
     });
     Route::resource($prefix, $controller)->except(["destroy"]);
 }

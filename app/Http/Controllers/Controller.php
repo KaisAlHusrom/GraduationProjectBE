@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\DataProcess;
+use App\Helpers\StringsHelper;
+use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -199,7 +201,9 @@ class Controller extends BaseController
                 foreach ($fileColumnNames as $fileColumnName) {
                     foreach ($recordsToDelete as $record) {
                         $fileName = $record[$fileColumnName];
-                        $this->deleteFile($fileName, $imagesFolderName, $filesFolderName);
+                        if($fileName) {
+                            $this->deleteFile($fileName, $imagesFolderName, $filesFolderName);
+                        }
                     }
                 }
             }
@@ -275,8 +279,11 @@ class Controller extends BaseController
                             filesFolderName: $filesFolderName,
                             imagesFolderName: $imagesFolderName,
                         );
+                        Log::info("file: ". $file);
+                        Log::info("file name: ". $fileName);
                         // Add fileName to validated data
                         $validatedData[$file] = $fileName;
+                        Log::info("file name: ". json_encode($validatedData));
                     }
                 }
             }
@@ -286,9 +293,9 @@ class Controller extends BaseController
 
             // Handle relationships
             foreach ($relationships as $relationName) {
-                $relatedIds = $request->input($relationName, null);
-                if (!empty($relatedIds) && $request->filled($relationName)) {
-                    Log::info("relatedIds: ". json_encode($relatedIds));
+                $relatedIds = $request->input(StringsHelper::camelToSnake($relationName), null);
+                if (!empty($relatedIds) && $request->filled(StringsHelper::camelToSnake($relationName))) {
+
                     // Resolve the relation
                     $relation = $createdResource->{$relationName}();
 
@@ -296,18 +303,19 @@ class Controller extends BaseController
                     if ($relation instanceof BelongsToMany) {
                         // Many-to-Many Relationship
                         $relation->sync($relatedIds);
-                    } elseif ($relation instanceof HasMany || $relation instanceof MorphMany) {
-                        //TODO: I don't think I will use this
-                        // One-to-Many Relationship
-                        $relatedModelClass = $relation->getRelated();
-
-                        foreach ($relatedIds as $relatedId) {
-                            $relatedModelClass::create([
-                                $relation->getForeignKeyName() => $createdResource->getKey(),
-                                // Other attributes as needed
-                            ]);
-                        }
                     }
+//                    } elseif ($relation instanceof HasMany || $relation instanceof MorphMany) {
+//                        //TODO: I don't think I will use this
+//                        // One-to-Many Relationship
+////                        $relatedModelClass = $relation->getRelated();
+////
+////                        foreach ($relatedIds as $relatedId) {
+////                            $relatedModelClass::create([
+////                                $relation->getForeignKeyName() => $createdResource->getKey(),
+////                                // Other attributes as needed
+////                            ]);
+////                        }
+//                    }
 //                    } elseif ($relation instanceof BelongsTo) {
 //                        // Many-to-One Relationship
 //                        $relatedModelClass = $relation->getRelated();
@@ -360,7 +368,7 @@ class Controller extends BaseController
 public function updateTemplate(
     string  $title,
     Request $request,
-    Model   $resource,
+    BaseModel   $resource,
     array   $validationRules = [],
     array   $relationships = [],
     array $files = [],
@@ -371,16 +379,34 @@ public function updateTemplate(
     try {
         // Validate request data
         $validatedData = $request->validate($validationRules);
-        Log::info('Validated data: ' . json_encode($validatedData));
 
-        // Update the resource
-        $resource->update($validatedData);
-        Log::info('Updated resource: ' . json_encode($resource));
+
+
+
+        //check if there is files sent with the request
+        foreach ($files as $fileFieldName) {
+            if($request->hasFile($fileFieldName)) {
+                $fileValue = $request->file($fileFieldName, null);
+                $oldFileName = $resource[$fileFieldName];
+
+                if($oldFileName) {
+                    $this->deleteFile($oldFileName, $imagesFolderName, $filesFolderName);
+                }
+
+                $newFileName = $this->saveFile(
+                    file: $fileValue,
+                    filesFolderName: $filesFolderName,
+                    imagesFolderName: $imagesFolderName,
+                );
+                $validatedData[$fileFieldName] = $newFileName;
+
+            }
+        }
 
         // Handle relationships
         //TODO: in the last, function don't enter the relations condition, another thin in many-to-one in front-end, when change data the row become undefined.
         foreach ($relationships as $relationName) {
-                $relatedObjects = $request->input($relationName, null);
+                $relatedObjects = $request->input(StringsHelper::camelToSnake($relationName), null);
 
                 // Resolve the relation
                 $relation = $resource->{$relationName}();
@@ -388,7 +414,7 @@ public function updateTemplate(
                 // Handle different types of relationships
                 if ($relation instanceof BelongsToMany) {
                     $Ids = collect($relatedObjects)->pluck('id')->toArray();
-                    Log::info('in many to many:'. json_encode($Ids));
+
                     // Many-to-Many Relationship
                     $relation->sync($Ids);
                 } elseif ($relation instanceof HasMany || $relation instanceof MorphMany) {
@@ -445,27 +471,14 @@ public function updateTemplate(
                         // Set the parent_id foreign key to null
                         $resource->{$relation->getForeignKeyName()} = null;
                     }
-                    $resource->save();
+
                 }
         }
 
-        //check if there is files sent with the request
-        foreach ($files as $fileFieldName) {
-            if($request->hasFile($fileFieldName)) {
-                $fileValue = $request->file($fileFieldName, null);
-
-                $oldFileName = $resource[$fileFieldName];
-                $this->deleteFile($oldFileName, $imagesFolderName, $filesFolderName);
-
-                $newFileName = $this->saveFile(
-                    file: $fileValue,
-                    filesFolderName: $filesFolderName,
-                    imagesFolderName: $imagesFolderName,
-                );
-                $resource[$fileFieldName] = $newFileName;
-                $resource->save();
-            }
-        }
+        Log::info("resourse". json_encode($resource));
+        // Update the resource
+        $resource->update($validatedData);
+        $resource->save();
 
         return DefaultResponseBodies::getSuccessResponse(data: $resource, message: $title." updated successfully");
     } catch (ModelNotFoundException $e) {
