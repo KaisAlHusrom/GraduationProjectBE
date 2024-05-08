@@ -6,18 +6,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Element extends BaseModel
+class Design extends BaseModel
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'element_type_id',
-        'children_id',
-        'element_title',
-        'element_description',
-        'element_image',
+        'parent_id',
+        'design_title',
+        'design_description',
+        'design_image',
         'is_template',
+        'is_child',
         'sequence_number',
+        'element_content'
     ];
 
     /**
@@ -27,13 +29,14 @@ class Element extends BaseModel
      */
     protected $casts = [
         'id' => 'string',
+        'is_child' => 'boolean',
         // Add any other attributes that you want to cast here
     ];
 
     /**
      * Get the element type that owns the element.
      */
-    public function elementType()
+    public function elementType(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ElementType::class, 'element_type_id');
     }
@@ -43,7 +46,7 @@ class Element extends BaseModel
      */
     public function children()
     {
-        return $this->hasMany(Element::class, 'children_id');
+        return $this->hasMany(Design::class, 'parent_id');
     }
 
     /**
@@ -51,7 +54,7 @@ class Element extends BaseModel
      */
     public function parent()
     {
-        return $this->belongsTo(Element::class, 'children_id');
+        return $this->belongsTo(Design::class, 'parent_id');
     }
 
 
