@@ -52,6 +52,7 @@ class StylePropsValueController extends Controller
                 $validationRules = [
                     'style_prop_value_normal_name' => "required",
                     'style_prop_value_css_name' => "required",
+                    'style_prop_value_description' => "required",
                     'style_prop_value_image' => "",
                     'style_prop_id' => "required",
                 ];
@@ -85,6 +86,7 @@ class StylePropsValueController extends Controller
                 $validationRules = [
                     'style_prop_value_normal_name' => "required",
                     'style_prop_value_css_name' => "required",
+                    'style_prop_value_description' => "required",
                     'style_prop_value_image' => "",
                     'style_prop_id' => "",
                 ];

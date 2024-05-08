@@ -19,7 +19,7 @@ class StylePropsCategoryController extends Controller
                 title: "Style Props Category",
                 request: $request,
                 modelClass: StylePropsCategory::class,
-                with: ["styleProps"],
+                with: ["styleProps.options", "styleProps.children.options"],
                 perPage: 10,
             );
         }

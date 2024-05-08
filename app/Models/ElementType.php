@@ -21,6 +21,7 @@ class ElementType extends BaseModel
     protected $casts = [
         'id' => 'string',
         'is_child' => 'boolean',
+        'not_has_end_tag' => 'boolean',
         // Add any other attributes that you want to cast here
     ];
 
@@ -34,7 +35,8 @@ class ElementType extends BaseModel
         'element_type_description',
         'is_child',
         'parent_id',
-        'sequence_number'
+        'sequence_number',
+        'not_has_end_tag'
     ];
 
 

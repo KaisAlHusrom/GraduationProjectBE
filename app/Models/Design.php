@@ -58,17 +58,17 @@ class Design extends BaseModel
     }
 
 
-    public function components()
+    public function pages()
     {
         // Define a many-to-many relationship with the Component model
-        return $this->belongsToMany(Component::class, 'components_elements')
-            ->withPivot('element_content', 'sequence_number')
+        return $this->belongsToMany(Page::class, 'pages_sections')
+            ->withPivot('sequence_number')
             ->withTimestamps(); // Include pivot columns
     }
 
     //get linked styles
     public function styles()
     {
-        return $this->hasMany(LinkedStyleProp::class, "element_id");
+        return $this->hasMany(LinkedStyleProp::class, "design_id");
     }
 }

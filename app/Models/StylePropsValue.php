@@ -17,6 +17,7 @@ class StylePropsValue extends BaseModel
     protected $fillable = [
         'style_prop_value_normal_name',
         'style_prop_value_css_name',
+        'style_prop_value_description',
         'style_prop_value_image',
         'style_prop_id',
     ];

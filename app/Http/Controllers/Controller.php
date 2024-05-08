@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\DataProcess;
 use App\Helpers\StringsHelper;
 use App\Models\BaseModel;
+use Illuminate\Database\Eloquent\MassAssignmentException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,6 +20,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class Controller extends BaseController
@@ -38,7 +40,7 @@ class Controller extends BaseController
 
         // Get the filters from the request
         $filters = $request->query("filters", []);
-//        Log::info("filters: ".json_encode($filters));
+
 
         // Get the sorts from the request
         $sorts = $request->query("sorts", []);
@@ -345,7 +347,10 @@ class Controller extends BaseController
                 errors: $e->validator->errors()
             );
 
-        } catch (\Exception $e) {
+        } catch (MassAssignmentException $e) {
+            return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Fillable Error");
+
+        }   catch (\Exception $e) {
             // Other unexpected errors
             return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Unexpected error");
         }
@@ -378,8 +383,9 @@ public function updateTemplate(
 {
     try {
         // Validate request data
+//        $validatedData = Validator::make($request->all(), $validationRules);
         $validatedData = $request->validate($validationRules);
-
+        Log::info("validated data: ". json_encode($validatedData));
 
 
 

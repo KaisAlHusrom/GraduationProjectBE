@@ -92,7 +92,7 @@ class StylePropController extends Controller
          */
         public function update(Request $request, StyleProp $styleProp): JsonResponse
         {
-            Log::info("propValue: ". json_encode($styleProp));
+
             $validationRules = [
                 'style_prop_normal_name'=>"required|unique:style_props,style_prop_normal_name,".$styleProp['id'],
                 'style_prop_css_name'=>"required|unique:style_props,style_prop_css_name,".$styleProp["id"],
@@ -102,12 +102,12 @@ class StylePropController extends Controller
                 'is_section'=>"boolean",
                 'is_component'=>"boolean",
                 'is_element'=>"boolean",
-                'is_child'=>"",
-                'parent_id'=>"",
-                'category_id'=>"",
-                'locateTypes'=>"",
+                'is_child'=>"boolean",
+                'parent_id'=>"string|nullable",
+                'category_id'=>"required",
+                'locateTypes'=>"string",
             ];
-
+            Log::info("propValue: ". json_encode($validationRules));
 
             //relations
             $relationships = [

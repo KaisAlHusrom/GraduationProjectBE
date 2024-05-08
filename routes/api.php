@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DesignController;
 use App\Http\Controllers\ElementPropController;
 use App\Http\Controllers\ElementTypeController;
 use App\Http\Controllers\StylePropController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\StylePropsCategoryController;
 use App\Http\Controllers\StylePropsValueController;
 use App\Http\Controllers\StyleResponsiveBreakpointController;
 use App\Http\Controllers\StyleStatusController;
+use App\Models\Design;
 use App\Models\StylePropsCategory;
 use App\Models\StylePropsValue;
 use Illuminate\Http\Request;
@@ -61,5 +63,6 @@ generateResourceRoutes("element_types", ElementTypeController::class);
 //Element Props
 generateResourceRoutes("element_props", ElementPropController::class);
 
-
+//Designs
+generateResourceRoutes("designs", DesignController::class);
 

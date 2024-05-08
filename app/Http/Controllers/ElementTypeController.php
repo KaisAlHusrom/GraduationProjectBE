@@ -51,6 +51,7 @@ class ElementTypeController extends Controller
             "element_type_name" => 'required|unique:element_types',
             "element_type_description" => 'required',
             "sequence_number" => '',
+            "not_has_end_tag" => '',
             'is_child' => "",
             'parent_id' => "",
         ];
@@ -90,6 +91,7 @@ class ElementTypeController extends Controller
             "element_type_name" => 'required|unique:element_types,element_type_name,'.$elementType->id,
             "element_type_description" => 'required',
             "sequence_number" => '',
+            "not_has_end_tag" => '',
             'is_child' => "",
             'parent_id' => "",
         ];

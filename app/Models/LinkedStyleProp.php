@@ -27,37 +27,20 @@ class LinkedStyleProp extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'section_id',
-        'component_id',
-        'element_id',
+        'design_id',
         'style_status_id',
         'style_responsive_breakpoint_id',
         'style_prop_id',
         'style_prop_value',
     ];
 
-    /**
-     * Get the section associated with the linked style prop.
-     */
-    public function section(): BelongsTo
-    {
-        return $this->belongsTo(Section::class);
-    }
-
-    /**
-     * Get the component associated with the linked style prop.
-     */
-    public function component(): BelongsTo
-    {
-        return $this->belongsTo(Component::class);
-    }
 
     /**
      * Get the element associated with the linked style prop.
      */
-    public function element(): BelongsTo
+    public function design(): BelongsTo
     {
-        return $this->belongsTo(Element::class);
+        return $this->belongsTo(Design::class);
     }
 
     /**
