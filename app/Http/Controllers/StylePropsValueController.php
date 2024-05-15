@@ -79,20 +79,18 @@ class StylePropsValueController extends Controller
             /**
              * Update the specified resource in storage.
              */
-            public function update(Request $request, StylePropsValue $stylePropsValue): JsonResponse
+            public function update(Request $request, $id): JsonResponse
             {
-                //TODO: can't update because $stylePropsValue is empty array []
-                Log::info("propValue: ". json_encode($stylePropsValue));
                 $validationRules = [
                     'style_prop_value_normal_name' => "required",
                     'style_prop_value_css_name' => "required",
                     'style_prop_value_description' => "required",
                     'style_prop_value_image' => "",
-                    'style_prop_id' => "",
                 ];
 
                 //relations
                 $relationships = [
+                    "styleProp"
                 ];
 
 
@@ -100,7 +98,8 @@ class StylePropsValueController extends Controller
                 return $this->updateTemplate(
                     title: $this::TITLE,
                     request: $request,
-                    resource: $stylePropsValue,
+                    resourceId: $id,
+                    modelClass: $this::MODEL,
                     validationRules: $validationRules,
                     relationships: $relationships,
                     files: $this::FILES_FIELD_NAMES,

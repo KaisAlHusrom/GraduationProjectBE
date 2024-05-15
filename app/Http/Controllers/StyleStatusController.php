@@ -77,11 +77,11 @@ class StyleStatusController extends Controller
             /**
              * Update the specified resource in storage.
              */
-            public function update(Request $request, StyleStatus $styleStatus): JsonResponse
+            public function update(Request $request, $id): JsonResponse
             {
                 $validationRules = [
-                    'style_status_normal_name' => "required|unique:style_statuses,style_status_normal_name,".$styleStatus['id'],
-                    'style_status_css_name' => "required|unique:style_statuses,style_status_css_name,".$styleStatus['id'],
+                    'style_status_normal_name' => "required|unique:style_statuses,style_status_normal_name,".$id,
+                    'style_status_css_name' => "required|unique:style_statuses,style_status_css_name,".$id,
                     'style_status_image' => "",
                     'style_status_description' => "required",
                 ];
@@ -95,7 +95,8 @@ class StyleStatusController extends Controller
                 return $this->updateTemplate(
                     title: $this::TITLE,
                     request: $request,
-                    resource: $styleStatus,
+                    resourceId: $id,
+                    modelClass: $this::MODEL,
                     validationRules: $validationRules,
                     relationships: $relationships,
                     files: $this::FILES_FIELD_NAMES,

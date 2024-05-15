@@ -70,10 +70,10 @@ class StylePropsCategoryController extends Controller
         /**
          * Update the specified resource in storage.
          */
-        public function update(Request $request, StylePropsCategory $stylePropsCategory): JsonResponse
+        public function update(Request $request, $id): JsonResponse
         {
             $validationRules = [
-                'category_name'=>"required|unique:style_props_categories,category_name,".$stylePropsCategory["id"],
+                'category_name'=>"required|unique:style_props_categories,category_name,".$id,
                 'category_description'=>"required",
             ];
 
@@ -85,7 +85,8 @@ class StylePropsCategoryController extends Controller
             return $this->updateTemplate(
                 title: "Style Props Category",
                 request: $request,
-                resource: $stylePropsCategory,
+                resourceId: $id,
+                modelClass: StylePropsCategory::class,
                 validationRules: $validationRules,
                 relationships: $relationships,
                 files: $this::FILES_FIELD_NAMES,

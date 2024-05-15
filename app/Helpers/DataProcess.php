@@ -139,13 +139,15 @@ class DataProcess
                     break;
                     //todo: complete many to one
                 case 'many-to-one':
-
                     if ($relationValue) {
+                        $isEndWithId = str_ends_with($filter['value'], 'id');
+                        if($isEndWithId) {
+                            $query->where($filter['value'], $process, $relationValue);
+                        } else {
+                            $relatedModel = $query->getRelation($filter['value'])->getRelated();
+                            $query->where($relatedModel->getForeignKey(), $process, $relationValue);
+                        }
 
-                        // Apply many-to-one relational conditions
-                        $relatedModel = $query->getRelation($filter["value"])->getRelated()->all();
-                        Log::info("related mode: ". $relatedModel);
-//                        $query->whereBelongsTo($relatedModel, $filter['value']);
                     }
                     break;
             }

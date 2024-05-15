@@ -71,10 +71,10 @@ class ElementPropController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ElementProp $elementProp): JsonResponse
+    public function update(Request $request, $id): JsonResponse
     {
         $validationRules = [
-            "element_prop_name" => 'required|unique:element_props,element_prop_name,' . $elementProp['id'],
+            "element_prop_name" => 'required|unique:element_props,element_prop_name,' . $id,
             "element_prop_description" => 'required',
             "element_types" => 'array', // Ensure element_types is an array
         ];
@@ -88,7 +88,8 @@ class ElementPropController extends Controller
         return $this->updateTemplate(
             title: "Element Props",
             request: $request,
-            resource: $elementProp,
+            resourceId: $id,
+            modelClass: ElementProp::class,
             validationRules: $validationRules,
             relationships: $relationships
         );

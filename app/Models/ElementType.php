@@ -22,6 +22,7 @@ class ElementType extends BaseModel
         'id' => 'string',
         'is_child' => 'boolean',
         'not_has_end_tag' => 'boolean',
+
         // Add any other attributes that you want to cast here
     ];
 
@@ -35,6 +36,7 @@ class ElementType extends BaseModel
         'element_type_description',
         'is_child',
         'parent_id',
+        'category_id',
         'sequence_number',
         'not_has_end_tag'
     ];
@@ -50,12 +52,22 @@ class ElementType extends BaseModel
     }
 
     /**
+     * Get the category of the element
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(ElementTypeCategory::class, 'category_id');
+    }
+
+    /**
      * Get the child element types if this element type is a parent.
      */
     public function children(): HasMany
     {
         return $this->hasMany(ElementType::class, 'parent_id');
     }
+
+
 
 
     /**

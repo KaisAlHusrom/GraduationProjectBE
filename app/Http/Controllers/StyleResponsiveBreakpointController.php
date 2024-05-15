@@ -79,14 +79,12 @@ class StyleResponsiveBreakpointController extends Controller
             /**
              * Update the specified resource in storage.
              */
-            public function update(Request $request, StyleResponsiveBreakpoint $styleResponsiveBreakpoint): JsonResponse
+            public function update(Request $request, $id): JsonResponse
             {
 
-                //TODO: can't update because styleResponsiveBreakpoint is empty array []
-                Log::info("style responsive breakpoint: ". json_encode($styleResponsiveBreakpoint));
                 $validationRules = [
-                    'style_responsive_break_point_normal_name' => "required|unique:style_responsive_breakpoints,style_responsive_break_point_normal_name,".$styleResponsiveBreakpoint['id'],
-                    'style_responsive_break_point_css_name' => "required|unique:style_responsive_breakpoints,style_responsive_break_point_css_name,".$styleResponsiveBreakpoint['id'],
+                    'style_responsive_break_point_normal_name' => "required|unique:style_responsive_breakpoints,style_responsive_break_point_normal_name,".$id,
+                    'style_responsive_break_point_css_name' => "required|unique:style_responsive_breakpoints,style_responsive_break_point_css_name,".$id,
                     'style_responsive_break_point_number_value' => 'required',
                     'style_responsive_break_point_image' => '',
                     'style_responsive_break_point_description' => 'required',
@@ -101,7 +99,8 @@ class StyleResponsiveBreakpointController extends Controller
                 return $this->updateTemplate(
                     title: $this::TITLE,
                     request: $request,
-                    resource: $styleResponsiveBreakpoint,
+                    resourceId: $id,
+                    modelClass: $this::MODEL,
                     validationRules: $validationRules,
                     relationships: $relationships,
                     files: $this::FILES_FIELD_NAMES,

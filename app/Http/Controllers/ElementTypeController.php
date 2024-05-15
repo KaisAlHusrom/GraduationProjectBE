@@ -22,7 +22,7 @@ class ElementTypeController extends Controller
             title: "Element Types",
             request: $request,
             modelClass: ElementType::class,
-            with: ['children.children.children.children', 'elementProps', 'parent'],
+            with: ['children.children.children.children', 'elementProps', 'parent', 'category'],
             perPage: 10,
         );
     }
@@ -36,7 +36,7 @@ class ElementTypeController extends Controller
             title: "Element Types",
             request: $request,
             modelClass: ElementType::class,
-            with: ['children', 'elementProps', 'parent'],
+            with: ['children', 'elementProps', 'parent', 'category'],
             perPage: 10,
         );
     }
@@ -53,12 +53,12 @@ class ElementTypeController extends Controller
             "sequence_number" => '',
             "not_has_end_tag" => '',
             'is_child' => "",
-            'parent_id' => "",
+            'parent_id' => "nullable",
+            "category_id" => "required",
         ];
 
         $relationships = [
             "elementProps",
-            "parent",
         ];
 
         // Call storeTemplate function to store the post and its related models
@@ -85,28 +85,32 @@ class ElementTypeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ElementType $elementType): \Illuminate\Http\JsonResponse
+    public function update(Request $request, $id): \Illuminate\Http\JsonResponse
     {
         $validationRules = [
-            "element_type_name" => 'required|unique:element_types,element_type_name,'.$elementType->id,
+            "element_type_name" => 'required|unique:element_types,element_type_name,'.$id,
             "element_type_description" => 'required',
             "sequence_number" => '',
             "not_has_end_tag" => '',
             'is_child' => "",
-            'parent_id' => "",
+//            'parent_id' => "",
+//            'category_id' => "",
         ];
 
         //the rows came from index function, in $request->input("make sure the name here be the same with the name in database table")
         $relationships = [
             "elementProps",
             "children",
+            "parent",
+            "category",
         ];
 
         // Call storeTemplate function to store the post and its related models
         return $this->updateTemplate(
             title: "Element Types",
             request: $request,
-            resource: $elementType,
+            resourceId: $id,
+            modelClass: ElementType::class,
             validationRules: $validationRules,
             relationships: $relationships
         );

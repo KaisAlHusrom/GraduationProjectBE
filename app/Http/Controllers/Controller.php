@@ -4,16 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Helpers\DataProcess;
 use App\Helpers\StringsHelper;
-use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\MassAssignmentException;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -51,6 +47,7 @@ class Controller extends BaseController
         // Initialize query builder
         $query = $model::query();
 
+        Log::info("filters: ", $filters);
         // Apply filters if they exist
         if (!empty($filters)) {
             $query = DataProcess::filterData($query, $filters);
@@ -263,82 +260,49 @@ class Controller extends BaseController
         array $files = [],
         string $filesFolderName = null,
         string $imagesFolderName = null,
-    ): JsonResponse
-    {
+    ): JsonResponse {
         try {
             // Resolve the model class
             $model = new $modelClass;
 
             // Validate request data
-            $validatedData = $request->validate($validationRules);
-
-            if(!empty($files)) {
-                foreach ($files as $file) {
-                    if($request->hasFile($file)){
-                        $fileValue = $request->file($file, null);
-                        $fileName = $this->saveFile(
-                            file: $fileValue,
-                            filesFolderName: $filesFolderName,
-                            imagesFolderName: $imagesFolderName,
-                        );
-                        Log::info("file: ". $file);
-                        Log::info("file name: ". $fileName);
-                        // Add fileName to validated data
-                        $validatedData[$file] = $fileName;
-                        Log::info("file name: ". json_encode($validatedData));
-                    }
+            $validatedData = Validator::make($request->all(), $validationRules)->validate();
+            Log::info("validated data: ", $validatedData);
+            // Handle file uploads
+            foreach ($files as $file) {
+                if ($request->hasFile($file)) {
+                    $fileValue = $request->file($file);
+                    $fileName = $this->saveFile(
+                        file: $fileValue,
+                        filesFolderName: $filesFolderName,
+                        imagesFolderName: $imagesFolderName,
+                    );
+                    $validatedData[$file] = $fileName;
                 }
             }
 
             // Create the resource
+            //!!! The create method create the fields that are exist in the filled in the model
             $createdResource = $model::create($validatedData);
 
             // Handle relationships
             foreach ($relationships as $relationName) {
-                $relatedIds = $request->input(StringsHelper::camelToSnake($relationName), null);
-                if (!empty($relatedIds) && $request->filled(StringsHelper::camelToSnake($relationName))) {
-
-                    // Resolve the relation
+                $relatedIds = $request->input(StringsHelper::camelToSnake($relationName));
+                if (!empty($relatedIds)) {
                     $relation = $createdResource->{$relationName}();
-
-                    // Handle different types of relationships
                     if ($relation instanceof BelongsToMany) {
-                        // Many-to-Many Relationship
                         $relation->sync($relatedIds);
+                    } elseif ($relation instanceof BelongsTo) {
+                        $relatedModel = $relation->getRelated()->findOrFail($relatedIds[0]);
+                        $createdResource->{$relation->getForeignKeyName()} = $relatedModel->getKey();
+                        $createdResource->save();
                     }
-//                    } elseif ($relation instanceof HasMany || $relation instanceof MorphMany) {
-//                        //TODO: I don't think I will use this
-//                        // One-to-Many Relationship
-////                        $relatedModelClass = $relation->getRelated();
-////
-////                        foreach ($relatedIds as $relatedId) {
-////                            $relatedModelClass::create([
-////                                $relation->getForeignKeyName() => $createdResource->getKey(),
-////                                // Other attributes as needed
-////                            ]);
-////                        }
-//                    }
-//                    } elseif ($relation instanceof BelongsTo) {
-//                        // Many-to-One Relationship
-//                        $relatedModelClass = $relation->getRelated();
-//                        //*
-//                        $relatedModel = $relatedModelClass::findOrFail($relatedIds); //in belong to you have to send array with one element id
-//                        Log::info("relatedModel: ". json_encode($relatedModel));
-//
-//                        $createdResource->{$relation->getForeignKeyName()} = $relatedModel->getKey();
-//                        // I can't get the id from createdResource
-//
-//                        $createdResource->save();
-//                    }
                 }
             }
-            return DefaultResponseBodies::getSuccessResponse(data: $createdResource, message: $title." created successfully");
-        }  catch (ModelNotFoundException $e) {
-            // Related model not found
+            return DefaultResponseBodies::getSuccessResponse(data: $createdResource, message: $title . " created successfully");
+        } catch (ModelNotFoundException $e) {
             return DefaultResponseBodies::getNotFoundResponse(error: $e->getMessage(), message: "Related model not found");
         } catch (QueryException $e) {
-
-            // Database query error
             return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Database query error");
         } catch (ValidationException $e) {
             return DefaultResponseBodies::getValidationErrorResponse(
@@ -346,23 +310,20 @@ class Controller extends BaseController
                 message: "Validation Error",
                 errors: $e->validator->errors()
             );
-
         } catch (MassAssignmentException $e) {
             return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Fillable Error");
-
-        }   catch (\Exception $e) {
-            // Other unexpected errors
+        } catch (\Exception $e) {
             return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Unexpected error");
         }
     }
-
 
     /**
      * Update the specified resource in storage.
      *
      * @param string $title
      * @param Request $request
-     * @param Model $resource
+     * @param string $resourceId
+     * @param string $modelClass
      * @param array $validationRules
      * @param array $relationships
      * @param array $files
@@ -370,134 +331,84 @@ class Controller extends BaseController
      * @param string|null $imagesFolderName
      * @return JsonResponse
      */
-public function updateTemplate(
-    string  $title,
-    Request $request,
-    BaseModel   $resource,
-    array   $validationRules = [],
-    array   $relationships = [],
-    array $files = [],
-    string $filesFolderName = null,
-    string $imagesFolderName = null,
-): JsonResponse
-{
-    try {
-        // Validate request data
-//        $validatedData = Validator::make($request->all(), $validationRules);
-        $validatedData = $request->validate($validationRules);
-        Log::info("validated data: ". json_encode($validatedData));
+    public function updateTemplate(
+        string $title,
+        Request $request,
+        string $resourceId,
+        string $modelClass,
+        array $validationRules = [],
+        array $relationships = [],
+        array $files = [],
+        string $filesFolderName = null,
+        string $imagesFolderName = null,
+    ): JsonResponse {
+        try {
+            // Resolve the model class
+            $model = new $modelClass;
 
+            //get the resource
+            $resource = $model::findOrFail($resourceId);
 
+            // Validate request data
+            $validatedData = $request->validate($validationRules);
 
-        //check if there is files sent with the request
-        foreach ($files as $fileFieldName) {
-            if($request->hasFile($fileFieldName)) {
-                $fileValue = $request->file($fileFieldName, null);
-                $oldFileName = $resource[$fileFieldName];
+            // Process file uploads
+            foreach ($files as $fileFieldName) {
+                if ($request->hasFile($fileFieldName)) {
+                    $fileValue = $request->file($fileFieldName);
+                    $oldFileName = $resource->{$fileFieldName};
 
-                if($oldFileName) {
-                    $this->deleteFile($oldFileName, $imagesFolderName, $filesFolderName);
-                }
-
-                $newFileName = $this->saveFile(
-                    file: $fileValue,
-                    filesFolderName: $filesFolderName,
-                    imagesFolderName: $imagesFolderName,
-                );
-                $validatedData[$fileFieldName] = $newFileName;
-
-            }
-        }
-
-        // Handle relationships
-        //TODO: in the last, function don't enter the relations condition, another thin in many-to-one in front-end, when change data the row become undefined.
-        foreach ($relationships as $relationName) {
-                $relatedObjects = $request->input(StringsHelper::camelToSnake($relationName), null);
-
-                // Resolve the relation
-                $relation = $resource->{$relationName}();
-
-                // Handle different types of relationships
-                if ($relation instanceof BelongsToMany) {
-                    $Ids = collect($relatedObjects)->pluck('id')->toArray();
-
-                    // Many-to-Many Relationship
-                    $relation->sync($Ids);
-                } elseif ($relation instanceof HasMany || $relation instanceof MorphMany) {
-                    //TODO: won't use this.
-                    // Log::info('in One to many:'. json_encode($relatedObjects));
-                    // // One-to-Many Relationship
-                    // $relatedModelClass = $relation->getRelated();
-
-                    // // Get the foreign key name
-                    // $foreignKeyName = $relation->getForeignKeyName();
-
-                    // // Get the IDs of related objects from the request
-                    // $relatedIds = collect($relatedObjects)->pluck('id')->toArray();
-
-                    // // Get the IDs of existing related objects
-                    // $existingRelatedIds = $resource->{$relationName}->pluck('id')->toArray();
-
-                    // // Determine which related objects to update, which to remove, and which to add
-                    // $objectsToUpdate = array_intersect($relatedIds, $existingRelatedIds);
-                    // $objectsToRemove = array_diff($existingRelatedIds, $relatedIds);
-                    // $objectsToAdd = array_diff($relatedIds, $existingRelatedIds);
-
-                    // // Update related objects
-                    // foreach ($objectsToUpdate as $objectId) {
-                    //     $relatedModel = $relatedModelClass::findOrFail($objectId);
-                    //     // Update attributes as needed
-                    //     $relatedModel->update([
-                    //         $foreignKeyName => $resource->id
-                    //     ]);
-                    // }
-
-                    // // Remove related objects
-                    // $relatedModelClass::whereIn('id', $objectsToRemove)->delete();
-
-                    // Add related objects (if necessary)
-                    // foreach ($objectsToAdd as $objectId) {
-                    //     // Create new related objects if needed
-                    //     $relatedModelClass::create([
-                    //         $foreignKeyName => $resource->id,
-                    //         // Set other attributes as needed
-                    //     ]);
-                    // }
-
-                } elseif ($relation instanceof BelongsTo) {
-                    if($relatedObjects) {
-                        Log::info('in Many to One:'. json_encode($relatedObjects));
-                        // Many-to-One Relationship
-                        $relatedModelClass = $relation->getRelated();
-
-                        // Update the related model
-                        $relatedModel = $relatedModelClass::findOrFail($relatedObjects['id']); // In BelongsTo, only one related model is expected
-                        $resource->{$relation->getForeignKeyName()} = $relatedModel->getKey();
-                    } else {
-                        // Set the parent_id foreign key to null
-                        $resource->{$relation->getForeignKeyName()} = null;
+                    if ($oldFileName) {
+                        $this->deleteFile($oldFileName, $imagesFolderName, $filesFolderName);
                     }
 
+                    $newFileName = $this->saveFile(
+                        file: $fileValue,
+                        filesFolderName: $filesFolderName,
+                        imagesFolderName: $imagesFolderName,
+                    );
+                    $validatedData[$fileFieldName] = $newFileName;
                 }
+            }
+
+            // Handle relationships
+            foreach ($relationships as $relationName) {
+                $relatedObjects = $request->input(StringsHelper::camelToSnake($relationName), null);
+                $relation = $resource->{$relationName}();
+
+                if ($relation instanceof BelongsToMany) {
+                    // Many-to-Many Relationship
+                    $Ids = collect($relatedObjects)->pluck('id')->toArray();
+                    $relation->sync($Ids);
+                } elseif ($relation instanceof BelongsTo) {
+                    // Many-to-One Relationship
+                    if ($relatedObjects) {
+                        $relatedModelClass = $relation->getRelated();
+                        $relatedModel = $relatedModelClass::findOrFail($relatedObjects['id']);
+                        $resource->{$relation->getForeignKeyName()} = $relatedModel->getKey();
+                    } else {
+                        // Set the foreign key to null
+                        $resource->{$relation->getForeignKeyName()} = null;
+                    }
+                }
+            }
+
+            // Update the resource
+            $resource->update($validatedData);
+//            $resource->save();
+            return DefaultResponseBodies::getSuccessResponse(data: $resource, message: $title . " updated successfully");
+        } catch (ModelNotFoundException $e) {
+            // Related model not found
+            return DefaultResponseBodies::getNotFoundResponse(error: $e->getMessage(), message: "Related model not found");
+        } catch (QueryException $e) {
+            // Database query error
+            return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Database query error");
+        } catch (\Exception $e) {
+            // Other unexpected errors
+            return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Unexpected error");
         }
-
-        Log::info("resourse". json_encode($resource));
-        // Update the resource
-        $resource->update($validatedData);
-        $resource->save();
-
-        return DefaultResponseBodies::getSuccessResponse(data: $resource, message: $title." updated successfully");
-    } catch (ModelNotFoundException $e) {
-        // Related model not found
-        return DefaultResponseBodies::getNotFoundResponse(error: $e->getMessage(), message: "Related model not found");
-    } catch (QueryException $e) {
-        // Database query error
-        return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Database query error");
-    } catch (\Exception $e) {
-        // Other unexpected errors
-        return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Unexpected error");
     }
-}
+
 
     public function saveFile($file, $filesFolderName = null, $imagesFolderName = null) : string {
         $imageMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp']; // Add more if needed

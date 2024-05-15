@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DesignController;
 use App\Http\Controllers\ElementPropController;
+use App\Http\Controllers\ElementTypeCategoryController;
 use App\Http\Controllers\ElementTypeController;
 use App\Http\Controllers\StylePropController;
 use App\Http\Controllers\StylePropsCategoryController;
@@ -32,10 +33,11 @@ function generateResourceRoutes($prefix, $controller): void
         Route::get("fetch_deleted", [$controller, 'fetchDeleted']);
         Route::put('restore/{ids}', [$controller, 'restore']);
         Route::delete('{ids}', [$controller, 'destroy']);
+        Route::patch('{id}', [$controller, 'update']);
         Route::delete('permanent-delete/{ids}', [$controller, 'permanentDelete']);
 //        Route::patch('{id}', [$controller, 'update']);
     });
-    Route::resource($prefix, $controller)->except(["destroy"]);
+    Route::resource($prefix, $controller)->except(["destroy", "update"]);
 }
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -56,6 +58,10 @@ generateResourceRoutes("style_statuses", StyleStatusController::class);
 
 //style breakpoints
 generateResourceRoutes("style_breakpoints", StyleResponsiveBreakpointController::class);
+
+
+//element types categories
+generateResourceRoutes("element_types_categories", ElementTypeCategoryController::class);
 
 //Element Types
 generateResourceRoutes("element_types", ElementTypeController::class);

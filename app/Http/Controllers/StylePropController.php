@@ -59,14 +59,16 @@ class StylePropController extends Controller
                 'is_component'=>"boolean",
                 'is_element'=>"boolean",
                 "category_id"=>"required",
+                'parent_id'=>"nullable",
                 'is_child'=>"",
-                'parent_id'=>"",
                 'locateTypes'=>"",
             ];
 
             //relations
             $relationships = [
-
+                "children",
+                //"parent",
+                //"category"
             ];
 
 
@@ -90,12 +92,12 @@ class StylePropController extends Controller
         /**
          * Update the specified resource in storage.
          */
-        public function update(Request $request, StyleProp $styleProp): JsonResponse
+        public function update(Request $request, $id): JsonResponse
         {
 
             $validationRules = [
-                'style_prop_normal_name'=>"required|unique:style_props,style_prop_normal_name,".$styleProp['id'],
-                'style_prop_css_name'=>"required|unique:style_props,style_prop_css_name,".$styleProp["id"],
+                'style_prop_normal_name'=>"required|unique:style_props,style_prop_normal_name,".$id,
+                'style_prop_css_name'=>"required|unique:style_props,style_prop_css_name,".$id,
                 'style_prop_image'=>"",
                 'style_prop_description'=>"required",
                 'style_prop_value_type'=>"required",
@@ -103,15 +105,15 @@ class StylePropController extends Controller
                 'is_component'=>"boolean",
                 'is_element'=>"boolean",
                 'is_child'=>"boolean",
-                'parent_id'=>"string|nullable",
-                'category_id'=>"required",
                 'locateTypes'=>"string",
             ];
-            Log::info("propValue: ". json_encode($validationRules));
+
 
             //relations
             $relationships = [
-                "children"
+                "children",
+                "parent",
+                "category"
             ];
 
 
@@ -119,7 +121,8 @@ class StylePropController extends Controller
             return $this->updateTemplate(
                 title: $this::TITLE,
                 request: $request,
-                resource: $styleProp,
+                resourceId: $id,
+                modelClass: $this::MODEL,
                 validationRules: $validationRules,
                 relationships: $relationships,
                 files: $this::FILES_FIELD_NAMES,
