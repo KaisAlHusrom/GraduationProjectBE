@@ -63,10 +63,16 @@ class Controller extends BaseController
         }
 
         // Get the page data with applied filters and pagination
-        $pageData = $query->with($with)
-            ->skip(($pageNumber - 1) * $perPageQuery)
-            ->take($perPageQuery)
-            ->get();
+        //TODO: fix this condition, not working
+        if($perPage == "all"){
+            $pageData = $query->with($with)->get();
+        } else {
+            $pageData = $query->with($with)
+                ->skip(($pageNumber - 1) * $perPageQuery)
+                ->take($perPageQuery)
+                ->get();
+        }
+
 
 //        Log::info("filteredData: " . json_encode($pageData));
 

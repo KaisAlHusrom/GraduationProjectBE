@@ -38,7 +38,8 @@ class ElementType extends BaseModel
         'parent_id',
         'category_id',
         'sequence_number',
-        'not_has_end_tag'
+        'not_has_end_tag',
+        "element_type_image"
     ];
 
 

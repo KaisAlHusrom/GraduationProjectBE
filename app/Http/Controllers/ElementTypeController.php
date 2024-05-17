@@ -12,6 +12,8 @@ use Illuminate\Http\JsonResponse;
 class ElementTypeController extends Controller
 {
 
+    private const FILES_FIELD_NAMES = ['element_type_image'];
+    private const IMAGES_FOLDER_NAME = "ElementTypesImages";
 
     /**
      * Display a listing of the resource.
@@ -55,6 +57,7 @@ class ElementTypeController extends Controller
             'is_child' => "",
             'parent_id' => "nullable",
             "category_id" => "required",
+            "element_type_image" => "nullable"
         ];
 
         $relationships = [
@@ -67,7 +70,9 @@ class ElementTypeController extends Controller
             request: $request,
             modelClass: ElementType::class,
             validationRules: $validationRules,
-            relationships: $relationships
+            relationships: $relationships,
+            files: $this::FILES_FIELD_NAMES,
+            imagesFolderName: $this::IMAGES_FOLDER_NAME,
         );
 
     }
@@ -93,6 +98,7 @@ class ElementTypeController extends Controller
             "sequence_number" => '',
             "not_has_end_tag" => '',
             'is_child' => "",
+            "element_type_image" => "nullable"
 //            'parent_id' => "",
 //            'category_id' => "",
         ];
@@ -112,7 +118,9 @@ class ElementTypeController extends Controller
             resourceId: $id,
             modelClass: ElementType::class,
             validationRules: $validationRules,
-            relationships: $relationships
+            relationships: $relationships,
+            files: $this::FILES_FIELD_NAMES,
+            imagesFolderName: $this::IMAGES_FOLDER_NAME,
         );
     }
 
@@ -137,6 +145,7 @@ class ElementTypeController extends Controller
             ids: $ids,
             modelClass: ElementType::class,
             title: "Element Types",
+
         );
     }
 
@@ -149,6 +158,8 @@ class ElementTypeController extends Controller
             ids: $ids,
             modelClass: ElementType::class,
             title: "Element Types",
+            fileColumnNames: $this::FILES_FIELD_NAMES,
+            imagesFolderName: $this::IMAGES_FOLDER_NAME,
         );
     }
 
