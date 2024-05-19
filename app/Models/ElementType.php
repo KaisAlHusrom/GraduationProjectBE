@@ -69,8 +69,6 @@ class ElementType extends BaseModel
     }
 
 
-
-
     /**
      * get element props of this type
      */
@@ -78,4 +76,14 @@ class ElementType extends BaseModel
     {
         return $this->belongsToMany(ElementProp::class, 'element_types_props');
     }
+
+    /**
+     * get designs of this type
+     */
+    public function designs() : HasMany
+    {
+        return $this->hasMany(Design::class, 'element_type_id');
+    }
+
+
 }

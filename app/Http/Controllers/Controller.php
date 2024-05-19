@@ -47,7 +47,7 @@ class Controller extends BaseController
         // Initialize query builder
         $query = $model::query();
 
-        Log::info("filters: ", $filters);
+//        Log::info("Query before applying filters and eager loading: ", (array)$query->toSql());
         // Apply filters if they exist
         if (!empty($filters)) {
             $query = DataProcess::filterData($query, $filters);
@@ -63,22 +63,23 @@ class Controller extends BaseController
         }
 
         // Get the page data with applied filters and pagination
-        //TODO: fix this condition, not working
-        if($perPage == "all"){
+
+        if($perPageQuery == "all"){
+
             $pageData = $query->with($with)->get();
         } else {
+
             $pageData = $query->with($with)
                 ->skip(($pageNumber - 1) * $perPageQuery)
                 ->take($perPageQuery)
                 ->get();
         }
 
-
+//        Log::info("Fetched data: ", $pageData->toArray());
 //        Log::info("filteredData: " . json_encode($pageData));
 
         return DefaultResponseBodies::getSuccessResponse(data: $pageData, message: "Get All $title Successfully");
     }
-
 
     public function fetchDeletedTemplate($title, Request $request, string $modelClass, $with = [], $perPage = 10): JsonResponse
     {
@@ -104,6 +105,49 @@ class Controller extends BaseController
         return DefaultResponseBodies::getSuccessResponse(data: $pageData, message: "Get All deleted $title Successfully");
     }
 
+    // fetch specific record
+    public function fetchSpecificRecordTemplate($title, $id, string $modelClass, array $with): JsonResponse
+    {
+        try {
+            // Resolve the model class
+            $model = new $modelClass;
+            // Find the record by ID
+            $record = $model::with($with)->findOrFail($id);
+
+            return DefaultResponseBodies::getSuccessResponse(data: $record, message: $title." Record Found Successfully");
+
+
+        }   catch (ModelNotFoundException $e) {
+            // Handle the case where the record is not found
+            return DefaultResponseBodies::getNotFoundResponse(error: $e->getMessage(), message: "Record not found");
+
+        } catch (\Exception $e) {
+            // Other unexpected errors
+            return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Unexpected error");
+        }
+    }
+
+    //check if specific record exists
+    public function checkSpecificRecordTemplate($title, $id, string $modelClass): JsonResponse
+    {
+        try {
+            // Resolve the model class
+            $model = new $modelClass;
+            // Find the record by ID
+            $model::findOrFail($id);
+
+            return DefaultResponseBodies::getSuccessResponse(data: true, message: $title." Record Found Successfully");
+
+
+        }   catch (ModelNotFoundException $e) {
+            // Handle the case where the record is not found
+            return DefaultResponseBodies::getNotFoundResponse(error: $e->getMessage(), message: "Record not found");
+
+        } catch (\Exception $e) {
+            // Other unexpected errors
+            return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Unexpected error");
+        }
+    }
     public function destroyTemplate($ids, string  $modelClass, $title): JsonResponse
     {
         try {
@@ -374,6 +418,8 @@ class Controller extends BaseController
                         imagesFolderName: $imagesFolderName,
                     );
                     $validatedData[$fileFieldName] = $newFileName;
+                }else {
+                    unset($validatedData[$fileFieldName]); // Prevent overwriting with null
                 }
             }
 
@@ -435,7 +481,7 @@ class Controller extends BaseController
         return $fileName;
     }
 
-    private function deleteFile(string $fileName, string $imagesFolderName = null, string $filesFolderName = null): void
+    public function deleteFile(string $fileName, string $imagesFolderName = null, string $filesFolderName = null): void
     {
         // Check if the record has an associated image
         if ($fileName != null) {

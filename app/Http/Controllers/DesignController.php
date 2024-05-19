@@ -4,16 +4,31 @@ namespace App\Http\Controllers;
 
 use App\Helpers\RecursiveFunctions;
 use App\Models\Design;
+use App\Models\LinkedStyleProp;
+use Illuminate\Database\Eloquent\MassAssignmentException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class DesignController extends Controller
 {
             private const TITLE = "Designs";
             private const MODEL = Design::class;
             private const FILES_FIELD_NAMES = ['design_image'];
-            private const FETCH_WITH = ['styles', 'parent', 'children', 'pages', 'category', 'elementType'];
+            private const FETCH_WITH = [
+                'styles.styleProp',
+                'styles.styleResponsiveBreakpoint',
+                'styles.styleStatus',
+                'elementType',
+                'children',
+                'styles',
+                'parent',
+                'pages',
+                'category'
+            ];
             private const IMAGES_FOLDER_NAME = "DesignsImages";
             private const FILES_FOLDER_NAME = null;
 
@@ -28,6 +43,31 @@ class DesignController extends Controller
                     modelClass: $this::MODEL,
                     with: $this::FETCH_WITH,
                     perPage: 10,
+                );
+            }
+
+            /**
+             * Display a specific record.
+             */
+            public function fetchSpecificRecord($id): JsonResponse
+            {
+                return $this->fetchSpecificRecordTemplate(
+                    title: $this::TITLE,
+                    id: $id,
+                    modelClass: $this::MODEL,
+                    with: $this::FETCH_WITH,
+                );
+            }
+
+            /**
+             * check a specific record.
+             */
+            public function checkSpecificRecord($id): JsonResponse
+            {
+                return $this->checkSpecificRecordTemplate(
+                    title: $this::TITLE,
+                    id: $id,
+                    modelClass: $this::MODEL,
                 );
             }
 
@@ -50,46 +90,81 @@ class DesignController extends Controller
              */
             public function store(Request $request): JsonResponse
             {
-                $validationRules = [
-                    'id' => "required",
-                    'element_type_id'=> "required",
-                    'parent_id'=> "nullable",
-                    'category_id'=>"required",
-                    'design_title' => "",
-                    'design_description' => "",
-                    'design_image' => "",
-                    'design_type' => "",
-                    'is_template' => "",
-                    'is_child' => "",
-                    'sequence_number' => "",
-                    'element_content' => "",
-                    'children' => "array",
-                    'styles' => "array",
-                ];
+                try {
+                    $validationRules = [
+                        'id' => "required",
+                        'element_type_id'=> "required",
+                        'parent_id'=> "nullable",
+                        'category_id'=>"required",
+                        'design_title' => "",
+                        'design_description' => "",
+                        'design_image' => "",
+                        'design_type' => "",
+                        'is_template' => "",
+                        'is_child' => "",
+                        'sequence_number' => "",
+                        'element_content' => "",
+                        'children' => "array",
+                        'styles' => "array",
+                    ];
 
-                //relations
-                $relationships = [
-                    "children"
-                ];
 
-                $validatedData = $request->validate($validationRules);
-//                Log::info("validation rules: ", $validatedData);
-                //TODO: I remove styles from object, and I want to link the data that will add to designs
-                //TODO: with style props and style statuses and style breakpoints using linked_style_props table
-                $flattedData = RecursiveFunctions::flattenWithParentId([$validatedData]);
+                    $validatedData = $request->validate($validationRules);
+                    $controller = true;
+                    $flattedData = RecursiveFunctions::flattenWithParentId([$validatedData]);
+                    foreach($flattedData as $design){
+                        $mode = new Design();
 
-                Log::info("validation rules: ", $flattedData);
-//                // store the prop
-//                return $this->storeTemplate(
-//                    title: $this::TITLE,
-//                    request: $request,
-//                    modelClass: $this::MODEL,
-//                    validationRules: $validationRules,
-//                    relationships: $relationships,
-//                    files: $this::FILES_FIELD_NAMES,
-//                    filesFolderName: $this::FILES_FOLDER_NAME,
-//                    imagesFolderName: $this::IMAGES_FOLDER_NAME,
-//                );
+                        if ($request->hasFile('design_image')) {
+                            $fileValue = $request->file('design_image');
+                            $fileName = $this->saveFile(
+                                file: $fileValue,
+                                imagesFolderName: $this::IMAGES_FOLDER_NAME,
+                            );
+                            $design['design_image'] = $fileName;
+                        }
+
+                        $new = $mode::create($design);
+                        if(!$new) {
+                            $controller = false;
+                            break;
+                        }
+
+                        if (!empty($design['styles'])) {
+                            $linkedStyleModel = new LinkedStyleProp();
+                            foreach ($design['styles'] as $style) {
+                                $style['design_id'] = $new->id; // Assuming 'id' is generated by the DB
+                                $newStyle = $linkedStyleModel::create($style);
+                                if (!$newStyle) {
+                                    $controller = false;
+                                    break 2; // Break both loops if style creation fails
+                                }
+                            }
+                        }
+                    }
+
+                    if($controller){
+                        return DefaultResponseBodies::getSuccessResponse(data: $flattedData[0], message: $this::TITLE . " created successfully");
+                    } else {
+                        return DefaultResponseBodies::getInternalServerErrorResponse(error: "Unexpected Error", message: "Unexpected error");
+                    }
+
+                } catch (ModelNotFoundException $e) {
+                        return DefaultResponseBodies::getNotFoundResponse(error: $e->getMessage(), message: "Related model not found");
+                } catch (QueryException $e) {
+                    return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Database query error");
+                } catch (ValidationException $e) {
+                    return DefaultResponseBodies::getValidationErrorResponse(
+                        error: $e->getMessage(),
+                        message: "Validation Error",
+                        errors: $e->validator->errors()
+                    );
+                } catch (MassAssignmentException $e) {
+                    return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Fillable Error");
+                } catch (\Exception $e) {
+                    return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Unexpected error");
+                }
+
             }
 
 
@@ -99,26 +174,96 @@ class DesignController extends Controller
              */
             public function update(Request $request, $id): JsonResponse
             {
-                $validationRules = [
-                ];
+                try {
+                    $validationRules = [
+                        'id' => "required",
+                        'element_type_id'=> "required",
+                        'parent_id'=> "nullable",
+                        'category_id'=>"required",
+                        'design_title' => "",
+                        'design_description' => "",
+                        'design_image' => "",
+                        'design_type' => "",
+                        'is_template' => "",
+                        'is_child' => "",
+                        'sequence_number' => "",
+                        'element_content' => "",
+                        'children' => "array",
+                        'styles' => "array",
+                    ];
 
-                //relations
-                $relationships = [
-                ];
 
 
-                // Call storeTemplate function to store the post and its related models
-                return $this->updateTemplate(
-                    title: $this::TITLE,
-                    request: $request,
-                    resourceId: $id,
-                    modelClass: $this::MODEL,
-                    validationRules: $validationRules,
-                    relationships: $relationships,
-                    files: $this::FILES_FIELD_NAMES,
-                    filesFolderName: $this::FILES_FOLDER_NAME,
-                    imagesFolderName: $this::IMAGES_FOLDER_NAME,
-                );
+
+                    $validatedData = $request->validate($validationRules);
+                    $controller = true;
+                    $flattedData = RecursiveFunctions::flattenWithParentId([$validatedData]);
+                    foreach($flattedData as $design){
+                        // Find the record by ID
+                        $resource = Design::findOrFail($design['id']);
+
+                        // Handle file upload
+                        if ($request->hasFile('design_image')) {
+                            $fileValue = $request->file('design_image');
+                            $oldFileName = $resource->design_image;
+
+                            if ($oldFileName) {
+                                $this->deleteFile($oldFileName, $this::IMAGES_FOLDER_NAME);
+                            }
+
+                            $newFileName = $this->saveFile(
+                                file: $fileValue,
+                                imagesFolderName: $this::IMAGES_FOLDER_NAME,
+                            );
+                            $design['design_image'] = $newFileName;
+                        } else {
+                            unset($design['design_image']); // Prevent overwriting with null
+                        }
+
+                        if (!empty($design['styles'])) {
+                            $resource->styles()->delete();
+
+                            $linkedStyleModel = new LinkedStyleProp();
+                            foreach ($design['styles'] as $style) {
+                                $style['design_id'] = $resource->id; // Assuming 'id' is generated by the DB
+                                $newStyle = $linkedStyleModel::create($style);
+                                if (!$newStyle) {
+                                    $controller = false;
+                                    break 2; // Break both loops if style creation fails
+                                }
+                            }
+                        }
+
+                        $updated = $resource->update($design);
+                        if(!$updated) {
+                            $controller = false;
+                            break;
+                        }
+
+
+                    }
+
+                    if($controller){
+                        return DefaultResponseBodies::getSuccessResponse(data: $flattedData[0], message: $this::TITLE . " created successfully");
+                    } else {
+                        return DefaultResponseBodies::getInternalServerErrorResponse(error: "Unexpected Error", message: "Unexpected error");
+                    }
+
+                } catch (ModelNotFoundException $e) {
+                    return DefaultResponseBodies::getNotFoundResponse(error: $e->getMessage(), message: "Related model not found");
+                } catch (QueryException $e) {
+                    return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Database query error");
+                } catch (ValidationException $e) {
+                    return DefaultResponseBodies::getValidationErrorResponse(
+                        error: $e->getMessage(),
+                        message: "Validation Error",
+                        errors: $e->validator->errors()
+                    );
+                } catch (MassAssignmentException $e) {
+                    return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Fillable Error");
+                } catch (\Exception $e) {
+                    return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Unexpected error");
+                }
             }
 
 

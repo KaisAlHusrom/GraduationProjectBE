@@ -32,6 +32,8 @@ function generateResourceRoutes($prefix, $controller): void
     Route::group(['prefix' => $prefix], function () use($controller) {
         // Element Types routes
         Route::get("fetch_deleted", [$controller, 'fetchDeleted']);
+        Route::get("fetch/{id}", [$controller, 'fetchSpecificRecord']);
+        Route::get("check/{id}", [$controller, 'checkSpecificRecord']);
         Route::put('restore/{ids}', [$controller, 'restore']);
         Route::delete('{ids}', [$controller, 'destroy']);
         Route::patch('{id}', [$controller, 'update']);

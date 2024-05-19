@@ -45,7 +45,7 @@ class DataProcess
 
             $filter = $appliedFilter['filter'];
             $process = $appliedFilter['process'];
-            $value = $appliedFilter['value'];
+            $value = $appliedFilter['value'] ?? null;
             $startDate = $appliedFilter['startDate'];
             $endDate = $appliedFilter['endDate'];
             $period = $appliedFilter['period'];
@@ -59,7 +59,11 @@ class DataProcess
                 case 'mobileNumber':
                 case 'password':
                 case 'pk':
-                    $query->where($filter['value'], 'LIKE', '%' . $value . '%');
+                    if ($value) {
+                        $query->where($filter['value'], 'LIKE', '%' . $value . '%');
+                    } else {
+                        $query->whereNull($filter['value']);
+                    }
                     break;
                 case 'bool':
                     $convert = ($value == "true") ? 1 : 0;

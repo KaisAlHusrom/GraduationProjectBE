@@ -18,7 +18,7 @@ class RecursiveFunctions
             $children = $element['children'] ?? [];
 
             unset($currentElement['children']);
-            unset($currentElement['styles']);
+//            unset($currentElement['styles']);
             Log::info("element: ", (array)$currentElement);
             // Add the current element to the flattened array
             $flattened[] = $currentElement;
