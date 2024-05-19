@@ -13,11 +13,13 @@ class Design extends BaseModel
     protected $fillable = [
         'element_type_id',
         'parent_id',
+        'category_id',
         'design_title',
         'design_description',
         'design_image',
         'is_template',
         'is_child',
+        'design_type',
         'sequence_number',
         'element_content'
     ];
@@ -55,6 +57,14 @@ class Design extends BaseModel
     public function parent()
     {
         return $this->belongsTo(Design::class, 'parent_id');
+    }
+
+    /**
+     * Get the parent element of the element.
+     */
+    public function category()
+    {
+        return $this->belongsTo(DesignCategory::class, 'category_id');
     }
 
 

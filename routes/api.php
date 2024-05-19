@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DesignCategoryController;
 use App\Http\Controllers\DesignController;
 use App\Http\Controllers\ElementPropController;
 use App\Http\Controllers\ElementTypeCategoryController;
@@ -70,5 +71,6 @@ generateResourceRoutes("element_types", ElementTypeController::class);
 generateResourceRoutes("element_props", ElementPropController::class);
 
 //Designs
+generateResourceRoutes("design-categories", DesignCategoryController::class);
 generateResourceRoutes("designs", DesignController::class);
 
