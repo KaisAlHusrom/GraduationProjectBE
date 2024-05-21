@@ -23,16 +23,58 @@ class DesignController extends Controller
                 'styles.styleResponsiveBreakpoint',
                 'styles.styleStatus',
                 'elementType',
-                'children',
                 'styles',
                 'parent',
                 'pages',
                 'category'
             ];
             private const IMAGES_FOLDER_NAME = "DesignsImages";
+
+            private const IMAGES_INSIDE_DESIGNS_FOLDER_NAME = "ImagesInsideDesigns";
             private const FILES_FOLDER_NAME = null;
 
-            /**
+            //to upload files inside
+            protected function handleFileUploads(&$design, Request $request, $parentKey = '')
+            {
+                // Check and save design_image if exists
+                if ($request->hasFile("{$parentKey}design_image")) {
+
+                    //TODO: check if delete old images work
+
+
+                    // Check if there is an existing image to delete
+                    if (!empty($design['design_image'])) {
+                        $this->deleteFile($design['design_image'], $this::IMAGES_FOLDER_NAME);
+                    }
+
+                    $fileValue = $request->file("{$parentKey}design_image");
+                    $fileName = $this->saveFile($fileValue, $this::IMAGES_FOLDER_NAME);
+                    $design['design_image'] = $fileName;
+                }
+
+                // Check and save element_content if exists
+                if ($request->hasFile("{$parentKey}element_content")) {
+                    // Check if there is an existing element_content to delete
+                    //TODO: 2- check if the new images upload to IMAGES_INSIDE_DESIGNS_FOLDER_NAME
+                    if (!empty($design['element_content'])) {
+                        $this->deleteFile($design['element_content'], $this::IMAGES_INSIDE_DESIGNS_FOLDER_NAME);
+                    }
+
+                    $fileValue = $request->file("{$parentKey}element_content");
+                    $fileName = $this->saveFile($fileValue, $this::IMAGES_INSIDE_DESIGNS_FOLDER_NAME);
+                    $design['element_content'] = $fileName;
+                }
+
+                // Recursively handle children
+                if (!empty($design['children'])) {
+                    foreach ($design['children'] as $index => &$child) {
+                        $this->handleFileUploads($child, $request, "{$parentKey}children.{$index}.");
+                    }
+                }
+            }
+
+
+    /**
              * Display a listing of the resource.
              */
             public function index(Request $request): JsonResponse
@@ -51,12 +93,35 @@ class DesignController extends Controller
              */
             public function fetchSpecificRecord($id): JsonResponse
             {
+
                 return $this->fetchSpecificRecordTemplate(
                     title: $this::TITLE,
                     id: $id,
                     modelClass: $this::MODEL,
-                    with: $this::FETCH_WITH,
+                    with: [...$this::FETCH_WITH, 'children.children.children.children.children.children.children.children'],
                 );
+            }
+
+            private function loadRecursive($model, $depth)
+            {
+                if ($depth > 0) {
+                    $model->load([
+                        'children' => function ($query) use ($depth) {
+                            $query->with([
+                                'styles.styleProp',
+                                'styles.styleResponsiveBreakpoint',
+                                'styles.styleStatus',
+                                'elementType',
+                                'styles',
+                                'parent',
+                                'pages',
+                                'children' => function ($query) use ($depth) {
+                                    $this->loadRecursive($query, $depth - 1);
+                                }
+                            ]);
+                        }
+                    ]);
+                }
             }
 
             /**
@@ -124,6 +189,15 @@ class DesignController extends Controller
                             $design['design_image'] = $fileName;
                         }
 
+                        if ($request->hasFile('element_content')) {
+                            $fileValue = $request->file('element_content');
+                            $fileName = $this->saveFile(
+                                file: $fileValue,
+                                imagesFolderName: $this::IMAGES_INSIDE_DESIGNS_FOLDER_NAME,
+                            );
+                            $design['element_content'] = $fileName;
+                        }
+
                         $new = $mode::create($design);
                         if(!$new) {
                             $controller = false;
@@ -182,68 +256,87 @@ class DesignController extends Controller
                         'category_id'=>"required",
                         'design_title' => "",
                         'design_description' => "",
-                        'design_image' => "",
+                        'design_image' => "", // Ensure file validation
                         'design_type' => "",
                         'is_template' => "",
                         'is_child' => "",
                         'sequence_number' => "",
-                        'element_content' => "",
+                        'element_content' => "", // Ensure file validation
                         'children' => "array",
                         'styles' => "array",
                     ];
 
-
-
-
                     $validatedData = $request->validate($validationRules);
-                    $controller = true;
+
+                    // Handle file uploads for the design and its children
+                    $this->handleFileUploads($validatedData, $request);
+
+                    // Flatten the data
                     $flattedData = RecursiveFunctions::flattenWithParentId([$validatedData]);
-                    foreach($flattedData as $design){
+
+                    //TODO: remove the children designs that are exist in the database, but not exists in the new design
+//                  Remove children that exist in the database but are not in the updated design data
+//                    $existingDesign = Design::with('children')->findOrFail($id);
+//                    $existingChildrenIds = $existingDesign->children->pluck('id')->toArray();
+//                    $updatedChildrenIds = collect($design['children'] ?? [])->pluck('id')->toArray();
+//                    $childrenToDelete = array_diff($existingChildrenIds, $updatedChildrenIds);
+//                    Design::whereIn('id', $childrenToDelete)->delete();
+
+                    $controller = true;
+                    foreach ($flattedData as $design) {
                         // Find the record by ID
-                        $resource = Design::findOrFail($design['id']);
+                        $resource = Design::find($design['id']);
 
-                        // Handle file upload
-                        if ($request->hasFile('design_image')) {
-                            $fileValue = $request->file('design_image');
-                            $oldFileName = $resource->design_image;
-
-                            if ($oldFileName) {
-                                $this->deleteFile($oldFileName, $this::IMAGES_FOLDER_NAME);
+                        if (!$resource) {
+                            // Create a new Design record
+                            $mode = new Design();
+                            $new = $mode::create($design);
+                            if (!$new) {
+                                $controller = false;
+                                break;
                             }
 
-                            $newFileName = $this->saveFile(
-                                file: $fileValue,
-                                imagesFolderName: $this::IMAGES_FOLDER_NAME,
-                            );
-                            $design['design_image'] = $newFileName;
-                        } else {
-                            unset($design['design_image']); // Prevent overwriting with null
-                        }
-
-                        if (!empty($design['styles'])) {
-                            $resource->styles()->delete();
-
-                            $linkedStyleModel = new LinkedStyleProp();
-                            foreach ($design['styles'] as $style) {
-                                $style['design_id'] = $resource->id; // Assuming 'id' is generated by the DB
-                                $newStyle = $linkedStyleModel::create($style);
-                                if (!$newStyle) {
-                                    $controller = false;
-                                    break 2; // Break both loops if style creation fails
+                            // Handle styles
+                            if (!empty($design['styles'])) {
+                                $linkedStyleModel = new LinkedStyleProp();
+                                foreach ($design['styles'] as $style) {
+                                    $style['design_id'] = $new->id;
+                                    $newStyle = $linkedStyleModel::create($style);
+                                    if (!$newStyle) {
+                                        $controller = false;
+                                        break 2;
+                                    }
                                 }
                             }
-                        }
+                        } else {
+                            // Update existing Design record
+                            if (!empty($design['styles'])) {
+                                $resource->styles()->delete();
+                                $linkedStyleModel = new LinkedStyleProp();
+                                foreach ($design['styles'] as $style) {
+                                    $style['design_id'] = $resource->id;
+                                    $newStyle = $linkedStyleModel::create($style);
+                                    if (!$newStyle) {
+                                        $controller = false;
+                                        break 2;
+                                    }
+                                }
+                            }
 
-                        $updated = $resource->update($design);
-                        if(!$updated) {
-                            $controller = false;
-                            break;
-                        }
 
+
+                            $updated = $resource->update($design);
+                            if (!$updated) {
+                                $controller = false;
+                                break;
+                            }
+
+
+                        }
 
                     }
 
-                    if($controller){
+                    if ($controller) {
                         return DefaultResponseBodies::getSuccessResponse(data: $flattedData[0], message: $this::TITLE . " created successfully");
                     } else {
                         return DefaultResponseBodies::getInternalServerErrorResponse(error: "Unexpected Error", message: "Unexpected error");
@@ -267,7 +360,7 @@ class DesignController extends Controller
             }
 
 
-            /**
+    /**
              * Remove the specified resources from storage.
              */
             public function destroy($ids): JsonResponse

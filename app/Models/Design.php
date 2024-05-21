@@ -57,13 +57,14 @@ class Design extends BaseModel
                     'styles.styleResponsiveBreakpoint',
                     'styles.styleStatus',
                     'elementType',
-                    'children',
                     'styles',
                     'parent',
                     'pages',
                 ]
             );
     }
+
+
     /**
      * Get the parent element of the element.
      */
