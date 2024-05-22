@@ -33,7 +33,6 @@ class Design extends BaseModel
      */
     protected $casts = [
         'id' => 'string',
-        'is_child' => 'boolean',
         // Add any other attributes that you want to cast here
     ];
 

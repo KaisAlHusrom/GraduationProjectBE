@@ -60,7 +60,12 @@ class DataProcess
                 case 'password':
                 case 'pk':
                     if ($value) {
-                        $query->where($filter['value'], 'LIKE', '%' . $value . '%');
+                        if($process == "=") {
+                            $query->where($filter['value'], 'LIKE', '%' . $value . '%');
+                        } else{
+                            $query->where($filter['value'], $process, $value);
+                        }
+
                     } else {
                         $query->whereNull($filter['value']);
                     }

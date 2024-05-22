@@ -17,6 +17,30 @@ class BaseModel extends Model
      */
     public $incrementing = false;
 
+    //cats
+    protected $casts = [
+        'id' => 'string',
+        // Add any other attributes that you want to cast here
+    ];
+
+    //* to ensure that all boolean values, will be return as boolean, and all id columns will return as string
+    public function getCasts(): array
+    {
+        $casts = parent::getCasts();
+
+        // Ensure 'id' is always cast to 'string'
+        $casts['id'] = 'string';
+
+        // Dynamically add boolean casts for attributes starting with 'is_' or 'not_'
+        foreach ($this->attributes as $key => $value) {
+            if (preg_match('/^(is_|not_)/', $key)) {
+                $casts[$key] = 'boolean';
+            }
+        }
+
+        return $casts;
+    }
+
     /**
      * The "booted" method of the model.
      *

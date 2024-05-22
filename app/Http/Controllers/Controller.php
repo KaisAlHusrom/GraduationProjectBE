@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\DataProcess;
+use App\Helpers\FilesFunctions;
 use App\Helpers\StringsHelper;
 use Illuminate\Database\Eloquent\MassAssignmentException;
 use Illuminate\Http\JsonResponse;
@@ -251,7 +252,7 @@ class Controller extends BaseController
                     foreach ($recordsToDelete as $record) {
                         $fileName = $record[$fileColumnName];
                         if($fileName) {
-                            $this->deleteFile($fileName, $imagesFolderName, $filesFolderName);
+                            FilesFunctions::deleteFile($fileName, $imagesFolderName, $filesFolderName);
                         }
                     }
                 }
@@ -322,7 +323,7 @@ class Controller extends BaseController
             foreach ($files as $file) {
                 if ($request->hasFile($file)) {
                     $fileValue = $request->file($file);
-                    $fileName = $this->saveFile(
+                    $fileName = FilesFunctions::saveFile(
                         file: $fileValue,
                         filesFolderName: $filesFolderName,
                         imagesFolderName: $imagesFolderName,
@@ -409,10 +410,10 @@ class Controller extends BaseController
                     $oldFileName = $resource->{$fileFieldName};
 
                     if ($oldFileName) {
-                        $this->deleteFile($oldFileName, $imagesFolderName, $filesFolderName);
+                        FilesFunctions::deleteFile($oldFileName, $imagesFolderName, $filesFolderName);
                     }
 
-                    $newFileName = $this->saveFile(
+                    $newFileName = FilesFunctions::saveFile(
                         file: $fileValue,
                         filesFolderName: $filesFolderName,
                         imagesFolderName: $imagesFolderName,
@@ -462,42 +463,5 @@ class Controller extends BaseController
     }
 
 
-    public function saveFile($file, $filesFolderName = null, $imagesFolderName = null) : string {
-        $imageMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp']; // Add more if needed
-        $storagePath = "public/assets";
 
-        $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-        $mimeType = $file->getMimeType();
-
-        if($mimeType === 'application/zip') {
-            $storagePath .= "/files/".$filesFolderName;
-        }
-
-        if(in_array($mimeType, $imageMimeTypes)) {
-            $storagePath .= "/images/".$imagesFolderName;
-        }
-        //TODO: adding checking malicious files if there in zip file
-        $file->storeAs($storagePath, $fileName);
-        return $fileName;
-    }
-
-    public function deleteFile(string $fileName, string $imagesFolderName = null, string $filesFolderName = null): void
-    {
-        // Check if the record has an associated image
-        if ($fileName != null) {
-            // Assuming $fileName contains only the name of the file
-            $imagePath = "public/assets/images/$imagesFolderName/$fileName";
-            $filePath = "public/assets/files/$filesFolderName/$fileName";
-            if (Storage::exists($imagePath)) {
-                // Delete the associated image
-                Storage::delete($imagePath);
-            }
-
-            if (Storage::exists($filePath)) {
-                // Delete the associated file
-                Storage::delete($filePath);
-            }
-
-        }
-    }
 }
