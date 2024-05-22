@@ -5,14 +5,14 @@ use App\Http\Controllers\DesignController;
 use App\Http\Controllers\ElementPropController;
 use App\Http\Controllers\ElementTypeCategoryController;
 use App\Http\Controllers\ElementTypeController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\StylePropController;
 use App\Http\Controllers\StylePropsCategoryController;
 use App\Http\Controllers\StylePropsValueController;
 use App\Http\Controllers\StyleResponsiveBreakpointController;
 use App\Http\Controllers\StyleStatusController;
-use App\Models\Design;
-use App\Models\StylePropsCategory;
-use App\Models\StylePropsValue;
+use App\Http\Controllers\WebProjectController;
+use App\Http\Controllers\WebProjectsPage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -76,3 +76,12 @@ generateResourceRoutes("element_props", ElementPropController::class);
 generateResourceRoutes("design-categories", DesignCategoryController::class);
 generateResourceRoutes("designs", DesignController::class);
 
+
+
+// web Projects
+generateResourceRoutes("web-projects", WebProjectController::class);
+
+// web pages
+generateResourceRoutes("web-pages", PageController::class);
+// web project pages
+generateResourceRoutes("web-project-pages", WebProjectsPage::class);

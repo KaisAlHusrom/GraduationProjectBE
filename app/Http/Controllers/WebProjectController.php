@@ -61,7 +61,7 @@ class WebProjectController extends Controller
 
         //relations
         $relationships = [
-
+            
         ];
 
         // store the prop
