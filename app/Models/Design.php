@@ -45,6 +45,14 @@ class Design extends BaseModel
     }
 
     /**
+     * Get the element type that owns the design.
+     */
+    public function page(): BelongsTo
+    {
+        return $this->belongsTo(Page::class, 'page_id');
+    }
+
+    /**
      * Get the children elements of the element if exist.
      */
     public function children(): \Illuminate\Database\Eloquent\Relations\HasMany

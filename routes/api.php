@@ -11,8 +11,16 @@ use App\Http\Controllers\StylePropsCategoryController;
 use App\Http\Controllers\StylePropsValueController;
 use App\Http\Controllers\StyleResponsiveBreakpointController;
 use App\Http\Controllers\StyleStatusController;
+<<<<<<< HEAD
 use App\Http\Controllers\WebProjectController;
 use App\Http\Controllers\WebProjectsPage;
+=======
+use App\Http\Controllers\UsersController;
+use App\Http\Controllers\WebProjectController;
+use App\Models\Design;
+use App\Models\StylePropsCategory;
+use App\Models\StylePropsValue;
+>>>>>>> 77bda3e16b81d61f99aebc77ec9631a1bd68bbe4
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -47,6 +55,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+//USERS
+generateResourceRoutes('users', UsersController::class);
+
 //style props categories
 generateResourceRoutes("style_props_categories", StylePropsCategoryController::class);
 
@@ -76,6 +87,7 @@ generateResourceRoutes("element_props", ElementPropController::class);
 generateResourceRoutes("design-categories", DesignCategoryController::class);
 generateResourceRoutes("designs", DesignController::class);
 
+<<<<<<< HEAD
 
 
 // web Projects
@@ -85,3 +97,8 @@ generateResourceRoutes("web-projects", WebProjectController::class);
 generateResourceRoutes("web-pages", PageController::class);
 // web project pages
 generateResourceRoutes("web-project-pages", WebProjectsPage::class);
+=======
+//web projects
+generateResourceRoutes("web-projects", WebProjectController::class);
+
+>>>>>>> 77bda3e16b81d61f99aebc77ec9631a1bd68bbe4
