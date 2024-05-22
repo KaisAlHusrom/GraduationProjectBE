@@ -7,17 +7,52 @@ use Illuminate\Http\Request;
 
 class DefaultResponseBodies extends Controller
 {
-    // public static function fetchDataSuccessResponse(
-    //     $data = [],
-    //     $message = "200 Success Response",
-    //     $length
-    // ) {
-    //     return response()->json([
-    //         'success' => true,
-    //         'data' => $data,
-    //         'message' => $message
-    //     ], 200)->header('Accept', 'application/json');
-    // }
+
+    //sign up response
+    public static function getSuccessSignUpResponse(
+        $token,
+        $data = [],
+        $message = "Sign Up Successful",
+    ): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $data,
+            'message' => $message
+        ], 200)
+            ->header('Accept', 'application/json')
+            ->cookie('token', $token, 1440, '/', null, true, true);
+    }
+
+    //login response
+    public static function getSuccessLogInResponse(
+        $token,
+        $data = [],
+        $message = "Log In Successful",
+    ): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $data,
+            'message' => $message
+        ], 200)
+            ->header('Accept', 'application/json')
+            ->cookie('token', $token, 1440, '/', null, true, true);
+    }
+
+    public static function getSuccessLogOutResponse(
+        $data = [],
+        $message = "Log Out Successful",
+    ): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $data,
+            'message' => $message
+        ], 200)
+            ->header('Accept', 'application/json')
+            ->cookie('token', '', -1);
+    }
 
     public static function getSuccessResponse($data = [], $message = "200 Success Response"): JsonResponse
     {

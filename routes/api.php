@@ -10,6 +10,8 @@ use App\Http\Controllers\StylePropsCategoryController;
 use App\Http\Controllers\StylePropsValueController;
 use App\Http\Controllers\StyleResponsiveBreakpointController;
 use App\Http\Controllers\StyleStatusController;
+use App\Http\Controllers\UsersController;
+use App\Http\Controllers\WebProjectController;
 use App\Models\Design;
 use App\Models\StylePropsCategory;
 use App\Models\StylePropsValue;
@@ -47,6 +49,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+//USERS
+generateResourceRoutes('users', UsersController::class);
+
 //style props categories
 generateResourceRoutes("style_props_categories", StylePropsCategoryController::class);
 
@@ -75,4 +80,7 @@ generateResourceRoutes("element_props", ElementPropController::class);
 //Designs
 generateResourceRoutes("design-categories", DesignCategoryController::class);
 generateResourceRoutes("designs", DesignController::class);
+
+//web projects
+generateResourceRoutes("web-projects", WebProjectController::class);
 

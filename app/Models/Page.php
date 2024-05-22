@@ -47,4 +47,23 @@ class Page extends BaseModel
             ->withPivot('sequence_number', 'section_link_id') // Include pivot columns
             ->withTimestamps();
     }
+
+    public function designs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Design::class, 'page_id')
+            ->with(
+                [
+                    'styles.styleProp',
+                    'styles.styleResponsiveBreakpoint',
+                    'styles.styleStatus',
+                    'children.children.children.children.children.children.children.children.children.children',
+                    'elementType',
+                    'styles',
+                    'parent',
+                    'pages',
+                ]
+            );
+    }
+
+
 }
