@@ -47,9 +47,7 @@ class WebProject extends BaseModel
     // Define a many-to-many relationship with the Page model
     public function pages()
     {
-        return $this->belongsToMany(Page::class, 'web_projects_pages')
-            ->withPivot('page_router', 'page_protector_route_user_column')
-            ->withTimestamps(); // Include pivot columns
+        return $this->hasMany(Page::class, 'web_project_id')->with("designs");
     }
 
     /**

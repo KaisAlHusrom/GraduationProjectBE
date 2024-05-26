@@ -32,21 +32,13 @@ class Page extends BaseModel
         // Add any other attributes that you want to cast here
     ];
 
+
     // Define a many-to-many relationship with the WebProject model
-    public function webProjects()
+    public function webProject(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsToMany(WebProject::class, 'web_projects_pages')
-            ->withPivot('page_router', 'page_protector_route_user_column')
-            ->withTimestamps(); // Include pivot columns
+        return $this->belongsTo(WebProject::class, "web_project_id");
     }
 
-    public function sections()
-    {
-        // Define a many-to-many relationship with the Section model
-        return $this->belongsToMany(Section::class, 'pages_sections')
-            ->withPivot('sequence_number', 'section_link_id') // Include pivot columns
-            ->withTimestamps();
-    }
 
     public function designs(): \Illuminate\Database\Eloquent\Relations\HasMany
     {

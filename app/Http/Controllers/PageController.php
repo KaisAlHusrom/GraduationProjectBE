@@ -11,7 +11,7 @@ class PageController extends Controller
     private const TITLE = "Web Pages";
     private const MODEL = Page::class;
     private const FILES_FIELD_NAMES = ["page_image"];
-    private const FETCH_WITH = ["webProjects" , "sections" ];
+    private const FETCH_WITH = ["webProject" , "designs" ];
     private const IMAGES_FOLDER_NAME = "Web_Pages_image";
     private const FILES_FOLDER_NAME = null;
 

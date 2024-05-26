@@ -29,6 +29,20 @@ class WebProjectController extends Controller
         );
     }
 
+    /**
+     * Display a specific record.
+     */
+    public function fetchSpecificRecord($id): JsonResponse
+    {
+
+        return $this->fetchSpecificRecordTemplate(
+            title: $this::TITLE,
+            id: $id,
+            modelClass: $this::MODEL,
+            with: $this::FETCH_WITH,
+        );
+    }
+
     /*
      * Display a listing of the deleted resource.
      */
@@ -61,7 +75,7 @@ class WebProjectController extends Controller
 
         //relations
         $relationships = [
-            
+
         ];
 
         // store the prop
