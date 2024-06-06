@@ -20,6 +20,7 @@ class Page extends BaseModel
         'page_description',
         'page_image',
         'is_template',
+        'web_project_id'
     ];
 
     /**

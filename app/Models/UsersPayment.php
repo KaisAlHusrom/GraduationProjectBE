@@ -18,6 +18,8 @@ class UsersPayment extends BaseModel
         'user_id',
         'user_payment_plan_id',
         'order_id',
+        'amount',
+        'status'
     ];
 
     /**
@@ -43,7 +45,7 @@ class UsersPayment extends BaseModel
      */
     public function userPaymentPlan()
     {
-        return $this->belongsTo(usersPaymentPlan::class);
+        return $this->belongsTo(usersPaymentPlan::class)->with(["paymentPlan"]);
     }
 
     /**

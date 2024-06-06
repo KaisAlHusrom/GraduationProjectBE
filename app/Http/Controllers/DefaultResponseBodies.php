@@ -34,10 +34,9 @@ class DefaultResponseBodies extends Controller
         return response()->json([
             'success' => true,
             'data' => $data,
-            'message' => $message
-        ], 200)
-            ->header('Accept', 'application/json')
-            ->cookie('token', $token, 1440, '/', null, true, true);
+            'message' => $message,
+            'token' => $token,
+        ], 200);
     }
 
     public static function getSuccessLogOutResponse(

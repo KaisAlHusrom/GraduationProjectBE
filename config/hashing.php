@@ -14,7 +14,7 @@ return [
     | Supported: "bcrypt", "argon", "argon2id"
     |
     */
-
+    //TODO: search how to change this to sha265
     'driver' => 'bcrypt',
 
     /*

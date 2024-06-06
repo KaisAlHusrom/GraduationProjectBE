@@ -51,16 +51,17 @@ class UsersController extends Controller
                 $validationRules = [
                     'first_name'=> "required|string",
                     'last_name'=> "required|string",
-                    'profile_image'=> "required",
+                    'profile_image'=> "",
                     'mobile_number'=> "required",
                     'is_admin'=> "",
-                    'birth_date'=> "required",
+                    'birth_date'=> "",
                     'email'=> "required",
                     'password'=> "required",
                 ];
 
                 //relations
                 $relationships = [
+                    'paymentPlans'
                 ];
 
                 // store the prop
@@ -86,16 +87,17 @@ class UsersController extends Controller
                 $validationRules = [
                     'first_name'=> "required|string",
                     'last_name'=> "required|string",
-                    'profile_image'=> "required",
+                    'profile_image'=> "",
                     'mobile_number'=> "required",
                     'is_admin'=> "",
-                    'birth_date'=> "required",
+                    'birth_date'=> "",
                     'email'=> "required",
                     'password'=> "",
                 ];
 
                 //relations
                 $relationships = [
+                    'paymentPlans'
                 ];
 
 

@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 
 return [
+    //set the domain that app will accept it's cookies
+    'cookie_domain' => env('APP_COOKIE_DOMAIN', 'localhost'),
 
     /*
     |--------------------------------------------------------------------------
@@ -168,6 +170,8 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        Laravel\Sanctum\SanctumServiceProvider::class,
+        App\Providers\KaisAuthServiceProvider::class,
     ])->toArray(),
 
     /*
