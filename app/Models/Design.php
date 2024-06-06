@@ -23,7 +23,8 @@ class Design extends BaseModel
         'is_child',
         'design_type',
         'sequence_number',
-        'element_content'
+        'element_content',
+        'page_id'
     ];
 
     /**

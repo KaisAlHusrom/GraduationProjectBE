@@ -38,7 +38,7 @@ class WebProjectController extends Controller
         return $this->fetchSpecificRecordTemplate(
             title: $this::TITLE,
             id: $id,
-            modelClass: $this::MODEL,
+            modelClass: $this::MODEL,   
             with: $this::FETCH_WITH,
         );
     }

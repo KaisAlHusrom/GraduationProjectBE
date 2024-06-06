@@ -26,7 +26,7 @@ class DesignController extends Controller
                 'styles',
                 'parent',
                 'pages',
-                'category'
+                'category',
             ];
             private const IMAGES_FOLDER_NAME = "DesignsImages";
 
@@ -134,6 +134,7 @@ class DesignController extends Controller
                         'element_content' => "",
                         'children' => "array",
                         'styles' => "array",
+                        'page_id' => "",
                     ];
 
 
@@ -190,10 +191,11 @@ class DesignController extends Controller
                         'element_content' => "", // Ensure file validation
                         'children' => "array",
                         'styles' => "array",
+                        'page_id' => "",
+
                     ];
 
                     $validatedData = $request->validate($validationRules);
-
                     // Start the update process
                     $controller = true;
                     RecursiveFunctions::handleUpdateDesigns($validatedData, $request, $this::IMAGES_FOLDER_NAME, $this::IMAGES_INSIDE_DESIGNS_FOLDER_NAME, '', $controller);

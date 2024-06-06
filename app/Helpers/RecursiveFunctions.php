@@ -101,16 +101,17 @@ class RecursiveFunctions
                     }
                 }
             }
-
-
-
-            // Handle children
-            if (!empty($design['children'])) {
+            if (empty($design['children'])) {
+                // Delete all child records where parent_id is the current design id
+                $resource->children()->forceDelete();
+            }else  {
                 // Get existing children IDs
                 $existingChildrenIds = $resource->children()->pluck('id')->toArray();
                 $updatedChildrenIds = collect($design['children'])->pluck('id')->toArray();
                 $childrenToDelete = array_diff($existingChildrenIds, $updatedChildrenIds);
-
+                Log::info("existingChildrenIds " . json_encode($existingChildrenIds) );
+                Log::info("updatedChildrenIds " . json_encode($updatedChildrenIds) );
+                Log::info("childrenToDelete " . json_encode($childrenToDelete) );
                 // Delete removed children
                 if (!empty($childrenToDelete)) {
                     Design::whereIn('id', $childrenToDelete)->forceDelete();

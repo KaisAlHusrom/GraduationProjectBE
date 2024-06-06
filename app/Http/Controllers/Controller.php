@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\DataProcess;
 use App\Helpers\FilesFunctions;
+use App\Helpers\RecursiveFunctions;
 use App\Helpers\StringsHelper;
 use Illuminate\Database\Eloquent\MassAssignmentException;
 use Illuminate\Http\JsonResponse;
@@ -338,16 +339,73 @@ class Controller extends BaseController
 
             // Handle relationships
             foreach ($relationships as $relationName) {
+
                 $relatedIds = $request->input(StringsHelper::camelToSnake($relationName));
                 if (!empty($relatedIds)) {
+
+
+                    $firstElement = $relatedIds[0];
                     $relation = $createdResource->{$relationName}();
-                    if ($relation instanceof BelongsToMany) {
-                        $relation->sync($relatedIds);
-                    } elseif ($relation instanceof BelongsTo) {
-                        $relatedModel = $relation->getRelated()->findOrFail($relatedIds[0]);
-                        $createdResource->{$relation->getForeignKeyName()} = $relatedModel->getKey();
-                        $createdResource->save();
+                    if (is_string($firstElement)) {
+                        Log::info("IDS 1".json_encode($relatedIds));
+
+                        if ($relation instanceof BelongsToMany) {
+
+                            $relation->sync($relatedIds);
+                        } elseif ($relation instanceof BelongsTo) {
+                            $relatedModel = $relation->getRelated()->findOrFail($relatedIds[0]);
+                            $createdResource->{$relation->getForeignKeyName()} = $relatedModel->getKey();
+                            $createdResource->save();
+                        }
+                        // It is an array of IDs (strings)
+                        // Perform actions for an array of IDs
+                    } elseif (is_array($firstElement) || is_object($firstElement)) {
+
+
+                        $ids =array_map(function($object) {
+                            if (is_object($object)) {
+                                return $object->id;
+                            } elseif (is_array($object) && isset($object['id'])) {
+                                return $object['id'];
+                            } else {
+                                return null;
+                            }
+                        }, $relatedIds);
+
+                        Log::info("IDS 2", $relatedIds);
+
+                        if ($relation instanceof BelongsToMany) {
+                            $relation->sync($ids);
+                        } elseif ($relation instanceof BelongsTo) {
+                            $relatedModel = $relation->getRelated()->findOrFail($ids[0]);
+                            $createdResource->{$relation->getForeignKeyName()} = $relatedModel->getKey();
+                            $createdResource->save();
+                        } else {
+                            $relatedModelClass = $relation->getRelated();
+                            foreach($relatedIds as $id ){
+                                $controller = true;
+
+                                RecursiveFunctions::handleSaveDesigns(
+                                    $id,
+                                    $request,
+                                    "DesignsImages",
+                                    "ImagesInsideDesigns",
+                                    '',
+                                    $controller
+                                    );
+
+                            }
+
+                        }
+
+                        // It is an array of objects
+                        // Perform actions for an array of objects
+                    } else {
+                        // Handle unexpected element types
                     }
+
+
+
                 }
             }
             return DefaultResponseBodies::getSuccessResponse(data: $createdResource, message: $title . " created successfully");

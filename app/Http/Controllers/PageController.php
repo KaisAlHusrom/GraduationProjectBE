@@ -53,10 +53,14 @@ class PageController extends Controller
             'page_description' => "required",
             'page_image' => "required",
             'is_template' => "",
+            'web_project_id' => "required",
+            'page_path'=> "",
+            "id" => ""
         ];
 
         //relations
         $relationships = [
+            'designs'
         ];
 
         // store the prop
@@ -82,6 +86,10 @@ class PageController extends Controller
             'page_description' => "required",
             'page_image' => "required",
             'is_template' => "",
+            'web_project_id' => "required",
+            'page_path'=> "",
+            "id" => ""
+
         ];
         //relations
         $relationships = [
