@@ -44,6 +44,13 @@ Route::middleware("customAuth")->get('auth/user', [AuthController::class, "fetch
     // ----- ! Tables normal users can see, add, update and delete ----- ! //
     //Web Projects for users
     UtilsRoutes::generateResourceUsersRoutes(
+        "pages",
+        PageController::class,
+        excepts: ['restore', 'fetchDeleted', 'permanentDelete']
+
+    );
+
+    UtilsRoutes::generateResourceUsersRoutes(
         "web-projects",
         WebProjectController::class,
         excepts: ['restore', 'fetchDeleted', 'permanentDelete']
