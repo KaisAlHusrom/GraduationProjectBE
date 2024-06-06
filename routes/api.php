@@ -1,5 +1,8 @@
 <?php
 
+use App\Helpers\UtilsRoutes;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DesignCategoryController;
 use App\Http\Controllers\DesignController;
 use App\Http\Controllers\ElementPropController;
@@ -11,14 +14,10 @@ use App\Http\Controllers\StylePropsCategoryController;
 use App\Http\Controllers\StylePropsValueController;
 use App\Http\Controllers\StyleResponsiveBreakpointController;
 use App\Http\Controllers\StyleStatusController;
-use App\Http\Controllers\WebProjectsPage;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\WebProjectController;
-use App\Models\Design;
-use App\Models\StylePropsCategory;
-use App\Models\StylePropsValue;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -31,62 +30,269 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-function generateResourceRoutes($prefix, $controller): void
-{
-    Route::group(['prefix' => $prefix], function () use($controller) {
-        // Element Types routes
-        Route::get("fetch_deleted", [$controller, 'fetchDeleted']);
-        Route::get("fetch/{id}", [$controller, 'fetchSpecificRecord']);
-        Route::get("check/{id}", [$controller, 'checkSpecificRecord']);
-        Route::put('restore/{ids}', [$controller, 'restore']);
-        Route::delete('{ids}', [$controller, 'destroy']);
-        Route::patch('{id}', [$controller, 'update']);
-        Route::delete('permanent-delete/{ids}', [$controller, 'permanentDelete']);
-//        Route::patch('{id}', [$controller, 'update']);
-    });
-    Route::resource($prefix, $controller)->except(["destroy", "update"]);
-}
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-//USERS
-generateResourceRoutes('users', UsersController::class);
-
-//style props categories
-generateResourceRoutes("style_props_categories", StylePropsCategoryController::class);
-
-//style props
-generateResourceRoutes("style_props", StylePropController::class);
-
-//style props Values
-generateResourceRoutes("style_prop_values", StylePropsValueController::class);
-
-//style statuses
-generateResourceRoutes("style_statuses", StyleStatusController::class);
-
-//style breakpoints
-generateResourceRoutes("style_breakpoints", StyleResponsiveBreakpointController::class);
 
 
-//element types categories
-generateResourceRoutes("element_types_categories", ElementTypeCategoryController::class);
-
-//Element Types
-generateResourceRoutes("element_types", ElementTypeController::class);
-
-//Element Props
-generateResourceRoutes("element_props", ElementPropController::class);
-
-//Designs
-generateResourceRoutes("design-categories", DesignCategoryController::class);
-generateResourceRoutes("designs", DesignController::class);
+//Sanctum::routes();
+// ! WITH NO AUTHENTICATIONS MIDDLEWARES
+Route::post("auth/register", [AuthController::class, 'register']);
+Route::post("auth/login", [AuthController::class, 'login']);
+Route::middleware("customAuth")->get('auth/user', [AuthController::class, "fetchUserData"]);
+// ! SANCTUM AUTHENTICATION
+//Route::middleware(['auth:sanctum'])->group(function () {
 
 
-// web pages
-generateResourceRoutes("web-pages", PageController::class);
-// web project pages
-generateResourceRoutes("web-project-pages", WebProjectsPage::class);
-//web projects
-generateResourceRoutes("web-projects", WebProjectController::class);
+    // ----- ! Tables normal users can see, add, update and delete ----- ! //
+    //Web Projects for users
+    UtilsRoutes::generateResourceUsersRoutes(
+        "web-projects",
+        WebProjectController::class,
+        excepts: ['restore', 'fetchDeleted', 'permanentDelete']
+    );
+
+    //Designs for users
+    UtilsRoutes::generateResourceUsersRoutes(
+        "designs",
+        DesignController::class,
+        excepts: ['restore', 'fetchDeleted', 'permanentDelete']
+    );
+
+    //Products
+    UtilsRoutes::generateResourceUsersRoutes(
+        "products",
+        \App\Http\Controllers\ProductController::class,
+        excepts: ['restore', 'fetchDeleted', 'permanentDelete']
+    );
+
+    // ------ ! Tables Can Normal Users Just See ! ------- //
+    //style props categories
+    UtilsRoutes::generateResourceUsersRoutes(
+        "style-props-categories",
+        StylePropsCategoryController::class,
+        excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
+    );
+
+    //style props
+    UtilsRoutes::generateResourceUsersRoutes(
+        "style-props",
+        StylePropController::class,
+        excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
+    );
+
+    //style props Values
+    UtilsRoutes::generateResourceUsersRoutes(
+        "style-prop-values",
+        StylePropsValueController::class,
+        excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
+    );
+
+    //style statuses
+    UtilsRoutes::generateResourceUsersRoutes(
+        "style-statuses",
+        StyleStatusController::class,
+        excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
+    );
+
+    //style breakpoints
+    UtilsRoutes::generateResourceUsersRoutes(
+        "style-breakpoints",
+        StyleResponsiveBreakpointController::class,
+        excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
+    );
+
+    //element types categories
+    UtilsRoutes::generateResourceUsersRoutes(
+        "element-types-categories",
+        ElementTypeCategoryController::class,
+        excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
+    );
+
+    //Element Types
+    UtilsRoutes::generateResourceUsersRoutes(
+        "element-types",
+        ElementTypeController::class,
+        excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
+    );
+
+    //Element Props
+    UtilsRoutes::generateResourceUsersRoutes(
+        "element-props",
+        ElementPropController::class,
+        excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
+    );
+
+
+    //Designs Categories for users
+    UtilsRoutes::generateResourceUsersRoutes(
+        "design-categories",
+        DesignCategoryController::class,
+        excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
+    );
+
+
+
+
+
+
+    // ! ADMIN AUTHENTICATION
+//    Route::middleware(['is_admin'])->group(function () {
+        //Designs Categories for admins
+
+        //USERS
+        UtilsRoutes::generateResourceAdminRoutes(
+            'users',
+            UsersController::class
+        );
+
+        //style props categories
+        UtilsRoutes::generateResourceAdminRoutes(
+            "style-props-categories",
+            StylePropsCategoryController::class)
+        ;
+
+        //style props
+        UtilsRoutes::generateResourceAdminRoutes(
+            "style-props",
+            StylePropController::class
+        );
+
+        //style props Values
+        UtilsRoutes::generateResourceAdminRoutes(
+            "style-prop-values",
+            StylePropsValueController::class
+        );
+
+        //style statuses
+        UtilsRoutes::generateResourceAdminRoutes(
+            "style-statuses",
+            StyleStatusController::class
+        );
+
+        //style breakpoints
+        UtilsRoutes::generateResourceAdminRoutes(
+            "style-breakpoints",
+            StyleResponsiveBreakpointController::class
+        );
+
+        //element types categories
+        UtilsRoutes::generateResourceAdminRoutes(
+            "element-types-categories",
+            ElementTypeCategoryController::class
+        );
+
+        //Element Types
+        UtilsRoutes::generateResourceAdminRoutes(
+            "element-types",
+            ElementTypeController::class
+        );
+
+        //Element Props
+        UtilsRoutes::generateResourceAdminRoutes(
+            "element-props",
+            ElementPropController::class
+        );
+
+        //Web Projects
+        UtilsRoutes::generateResourceAdminRoutes(
+            "web-projects",
+            WebProjectController::class
+        );
+
+        //Web Projects
+        UtilsRoutes::generateResourceAdminRoutes(
+            "pages",
+            PageController::class
+        );
+
+        UtilsRoutes::generateResourceAdminRoutes(
+            "design-categories",
+            DesignCategoryController::class,
+        );
+
+        //Designs
+        UtilsRoutes::generateResourceAdminRoutes(
+            "designs",
+            DesignController::class
+        );
+
+        // --- E Commerce Routes --- //
+        //Designs
+        UtilsRoutes::generateResourceAdminRoutes(
+            "products-categories",
+            CategoryController::class
+        );
+
+        //Products
+        UtilsRoutes::generateResourceAdminRoutes(
+            "products",
+            \App\Http\Controllers\ProductController::class
+        );
+
+        //Products Features
+        UtilsRoutes::generateResourceAdminRoutes(
+            "products-features",
+            \App\Http\Controllers\ProductFeatureController::class
+        );
+
+        //Products Media
+        UtilsRoutes::generateResourceAdminRoutes(
+            "products-media",
+            \App\Http\Controllers\ProductMediaController::class
+        );
+
+        //Product Reviews
+        UtilsRoutes::generateResourceAdminRoutes(
+            "products-reviews",
+            \App\Http\Controllers\ProductReviewController::class
+        );
+
+        //Product discounts
+        UtilsRoutes::generateResourceAdminRoutes(
+            "products-discounts",
+            \App\Http\Controllers\ProductsDiscountController::class
+        );
+
+        //Product Used Skills
+        UtilsRoutes::generateResourceAdminRoutes(
+            "products-used-skills",
+            \App\Http\Controllers\ProductUsedSkillController::class
+        );
+
+        //Orders
+        UtilsRoutes::generateResourceAdminRoutes(
+            "orders",
+            \App\Http\Controllers\OrderController::class
+        );
+
+        //Orders items
+        UtilsRoutes::generateResourceAdminRoutes(
+            "order-items",
+            \App\Http\Controllers\OrderItemController::class
+        );
+
+        //Payment Plans
+        UtilsRoutes::generateResourceAdminRoutes(
+            "payment-plans",
+            \App\Http\Controllers\PaymentPlanController::class
+        );
+
+        //Payment Plan features
+        UtilsRoutes::generateResourceAdminRoutes(
+            "payment-plan-features",
+            \App\Http\Controllers\PaymentPlanFeatureController::class
+        );
+
+        //Users Payments
+        UtilsRoutes::generateResourceAdminRoutes(
+            "users-payments",
+            \App\Http\Controllers\UsersPaymentController::class
+        );
+
+        //Users Payments plans
+        UtilsRoutes::generateResourceAdminRoutes(
+            "users-payment-plans",
+            \App\Http\Controllers\UsersPaymentPlanController::class
+        );
+
+//    });
+//});
+

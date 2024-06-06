@@ -40,6 +40,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+//        // !! to use sanctum for api auth
+//        'api' => [
+//            'driver' => 'sanctum', // Use Sanctum for API authentication
+//            'provider' => 'users',
+//            'hash' => false,
+//        ],
     ],
 
     /*

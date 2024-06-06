@@ -38,4 +38,22 @@ class Order extends BaseModel
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Get the products associated with the category.
+     */
+    public function orderItems()
+    {
+        return $this->HasMany(OrderItem::class, 'order_id');
+    }
+
+    /**
+     * Get the products associated with the category.
+     */
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'order_items')
+            ->withPivot('quantity', 'sub_total')
+            ->withTimestamps();
+    }
 }

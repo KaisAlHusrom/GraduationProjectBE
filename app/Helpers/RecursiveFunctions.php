@@ -101,6 +101,7 @@ class RecursiveFunctions
                     }
                 }
             }
+
             if (empty($design['children'])) {
                 // Delete all child records where parent_id is the current design id
                 $resource->children()->forceDelete();

@@ -75,7 +75,7 @@ class User extends Authenticatable
     public function paymentPlans()
     {
         return $this->belongsToMany(PaymentPlan::class, 'users_payment_plans')
-            ->withPivot('status', 'expire-date', 'is_active', 'bill_date')
+            ->withPivot('status', 'expire_date', 'is_active', 'bill_date')
             ->withTimestamps();
     }
 

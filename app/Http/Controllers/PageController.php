@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class PageController extends Controller
 {
-    private const TITLE = "Web Pages";
+    private const TITLE = "Pages";
     private const MODEL = Page::class;
     private const FILES_FIELD_NAMES = ["page_image"];
     private const FETCH_WITH = ["webProject" , "designs" ];
@@ -93,6 +93,7 @@ class PageController extends Controller
         ];
         //relations
         $relationships = [
+            'webProject'
         ];
 
         // Call storeTemplate function to store the post and its related models

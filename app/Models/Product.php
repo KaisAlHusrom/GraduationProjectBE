@@ -37,9 +37,9 @@ class Product extends BaseModel
     ];
 
     //many-to-one to user
-    public function owner()
+    public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     //one-to-many to product Media
@@ -57,7 +57,7 @@ class Product extends BaseModel
     //one-to-many to product Media
     public function productFeatures()
     {
-        return $this->hasMany(ProductFeature::class);
+        return $this->hasMany(ProductFeature::class, "product_id");
     }
 
     // one-to-many
@@ -80,6 +80,16 @@ class Product extends BaseModel
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * Get the products associated with the category.
+     */
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class, 'order_items')
+            ->withPivot('quantity', 'sub_total')
+            ->withTimestamps();
     }
 
     /**
