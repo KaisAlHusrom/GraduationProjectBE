@@ -36,12 +36,15 @@ use Illuminate\Support\Facades\Route;
 // ! WITH NO AUTHENTICATIONS MIDDLEWARES
 Route::post("auth/register", [AuthController::class, 'register']);
 Route::post("auth/login", [AuthController::class, 'login']);
-Route::middleware("customAuth")->get('auth/user', [AuthController::class, "fetchUserData"]);
-// ! SANCTUM AUTHENTICATION
-//Route::middleware(['auth:sanctum'])->group(function () {
 
+// ! SANCTUM AUTHENTICATION
+Route::middleware(['customAuth'])->group(function () {
+    // ------- ! AUTH ! ------------
+    Route::get('auth/user', [AuthController::class, "fetchUserData"]);
+    Route::get('auth/logout', [AuthController::class, "logout"]);
 
     // ----- ! Tables normal users can see, add, update and delete ----- ! //
+
     //Web Projects for users
     UtilsRoutes::generateResourceUsersRoutes(
         "pages",
@@ -70,7 +73,18 @@ Route::middleware("customAuth")->get('auth/user', [AuthController::class, "fetch
         excepts: ['restore', 'fetchDeleted', 'permanentDelete']
     );
 
+
+
     // ------ ! Tables Can Normal Users Just See ! ------- //
+
+
+    //Products Categories
+    UtilsRoutes::generateResourceUsersRoutes(
+        "products-categories",
+        CategoryController::class,
+        excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete'],
+    );
+
     //style props categories
     UtilsRoutes::generateResourceUsersRoutes(
         "style-props-categories",
@@ -135,13 +149,23 @@ Route::middleware("customAuth")->get('auth/user', [AuthController::class, "fetch
         excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
     );
 
+    //Users Payments plans
+    UtilsRoutes::generateResourceUsersRoutes(
+        "users-payment-plans",
+        \App\Http\Controllers\UsersPaymentPlanController::class,
+        excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
+    );
 
-
-
+    // * USERS CAN UPDATE ONLY * //
+    UtilsRoutes::generateResourceUsersRoutes(
+        'users',
+        UsersController::class,
+        excepts: ['store', 'index', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete', 'fetchSpecificRecord']
+    );
 
 
     // ! ADMIN AUTHENTICATION
-//    Route::middleware(['is_admin'])->group(function () {
+    Route::middleware(['is_admin'])->group(function () {
         //Designs Categories for admins
 
         //USERS
@@ -300,6 +324,6 @@ Route::middleware("customAuth")->get('auth/user', [AuthController::class, "fetch
             \App\Http\Controllers\UsersPaymentPlanController::class
         );
 
-//    });
-//});
+    });
+});
 

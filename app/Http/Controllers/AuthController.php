@@ -94,7 +94,7 @@ class AuthController extends Controller
 
             $credentials = request(['email', 'password']);
             // Check if the user exists
-            $user = User::where('email', $request->email)->first();
+            $user = User::where('email', $request->email)->with("paymentPlans")->first();
 
             if (!$user || !auth()->attempt($credentials)) {
                 return DefaultResponseBodies::getUnauthorizedResponse(
@@ -108,7 +108,7 @@ class AuthController extends Controller
 
             // Create a new token for the user
             $token = $user->createToken('auth_token', [], Carbon::now()->addDay())->plainTextToken;
-            Log::info("token: ". $token);
+
             // Set the token in an HTTP-only cookie
             return DefaultResponseBodies::getSuccessLogInResponse(
                 token: $token,
@@ -138,10 +138,22 @@ class AuthController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
-        $request->user()->tokens()->delete();
-        Auth::logout();
-        // Remove the token cookie
-        return DefaultResponseBodies::getSuccessLogOutResponse();
+        // Get the current authenticated user
+        $user = $request->user();
+
+        if ($user) {
+            // Delete the current token
+            $request->user()->tokens()->delete();
+
+            // Logout the user (this will only affect session-based authentication)
+            Auth::logout();
+
+            // Return success response
+            return DefaultResponseBodies::getSuccessLogOutResponse();
+        }
+
+        // Return unauthorized response if no user is authenticated
+        return DefaultResponseBodies::getUnauthorizedResponse();
     }
 
 
@@ -150,8 +162,6 @@ class AuthController extends Controller
     {
         // Retrieve the authenticated user
         $user = $request->user();
-        Log::info("user: ". json_encode($user));
-        Log::info("Authenticated User: " . json_encode($user));
         // Check if a user is authenticated
         if ($user) {
             return DefaultResponseBodies::getSuccessResponse(
