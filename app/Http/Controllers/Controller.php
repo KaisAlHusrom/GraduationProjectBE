@@ -514,6 +514,12 @@ class Controller extends BaseController
         } catch (QueryException $e) {
             // Database query error
             return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Database query error");
+        } catch (ValidationException $e) {
+            return DefaultResponseBodies::getValidationErrorResponse(
+                error: $e->getMessage(),
+                message: "Validation Error",
+                errors: $e->validator->errors()
+            );
         } catch (\Exception $e) {
             // Other unexpected errors
             return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Unexpected error");

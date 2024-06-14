@@ -50,7 +50,8 @@ class PaymentPlanController extends Controller
             {
                 $validationRules = [
                     'payment_plan_title' => "required|unique:payment_plans",
-                    'payment_plan_price' => "required",
+                    'payment_plan_monthly_price' => "required",
+                    'payment_plan_yearly_price' => "required",
                     'payment_plan_description' => "required",
                     'is_active' => "required",
                 ];
@@ -83,7 +84,8 @@ class PaymentPlanController extends Controller
             {
                 $validationRules = [
                     'payment_plan_title' => "required|unique:payment_plans,payment_plan_title,$id",
-                    'payment_plan_price' => "required",
+                    'payment_plan_monthly_price' => "required",
+                    'payment_plan_yearly_price' => "required",
                     'payment_plan_description' => "required",
                     'is_active' => "required",
                 ];

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Helpers\FilesFunctions;
 
+use App\Models\PaymentPlan;
+use App\Models\UsersPaymentPlan;
 use Illuminate\Database\Eloquent\MassAssignmentException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
@@ -50,18 +52,33 @@ class AuthController extends Controller
 //            $validatedData["password"] = hash('sha256', $request->password);
 
 
-
+            // Add the free trial expiration date to the validated data
+            $validatedData['free_trial_expiration_date'] = Carbon::now()->addDays(7);
             // Create a new user
             $user = User::create($validatedData);
 
-            // Create a token for the user
-            $token = $user->createToken('auth_token', [], Carbon::now()->addDay())->plainTextToken;
+            if($user) {
+                //subscribe with free plan when sign up new account
+                $freePlan = PaymentPlan::where("payment_plan_title", '=', "Free")->first();
+                UsersPaymentPlan::create([
+                    'payment_plan_id' => $freePlan->id,
+                    'user_id' => $user->id,
+                    'status' => "Active",
+                    'expire_date' => Carbon::now()->addYear(), // Setting expire_date to one year from now
+                    'is_active' => 1,
+                    'bill_date' => Carbon::now(),
+                ]);
+                // Create a token for the user
+                //$token = $user->createToken('auth_token', [], Carbon::now()->addDay())->plainTextToken;
+                return DefaultResponseBodies::getSuccessResponse(
+                    data: $user,
+                    message: "Sign Up Successfully"
+                );
 
-            return DefaultResponseBodies::getSuccessResponse(
-                data: $user,
-                message: "Sign Up Successfully"
+            }
+            return DefaultResponseBodies::getBadRequestResponse(
+                message: "Sign Up Failed"
             );
-
         } catch (ModelNotFoundException $e) {
             return DefaultResponseBodies::getNotFoundResponse(error: $e->getMessage(), message: "Related model not found");
         } catch (QueryException $e) {
@@ -160,12 +177,17 @@ class AuthController extends Controller
     //fetch user data if token is valid
     public function fetchUserData(Request $request)
     {
-        // Retrieve the authenticated user
-        $user = $request->user();
-        // Check if a user is authenticated
+        // Retrieve the authenticated user ID
+        $userId = $request->user()->id;
+
+        // Fetch the user with the paymentPlans relationship
+        $user = User::with(['paymentPlans'])->find($userId);
+
+        // Check if the user exists
         if ($user) {
             return DefaultResponseBodies::getSuccessResponse(
-                data: $user,message: "Get User Successfully"
+                data: $user,
+                message: "Get User Successfully"
             );
         } else {
             return DefaultResponseBodies::getNotFoundResponse(

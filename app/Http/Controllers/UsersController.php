@@ -30,6 +30,32 @@ class UsersController extends Controller
             }
 
             /**
+             * Display a specific record.
+             */
+            public function fetchSpecificRecord($id): JsonResponse
+            {
+
+                return $this->fetchSpecificRecordTemplate(
+                    title: $this::TITLE,
+                    id: $id,
+                    modelClass: $this::MODEL,
+                    with: $this::FETCH_WITH,
+                );
+            }
+
+            /**
+             * check a specific record.
+             */
+            public function checkSpecificRecord($id): JsonResponse
+            {
+                return $this->checkSpecificRecordTemplate(
+                    title: $this::TITLE,
+                    id: $id,
+                    modelClass: $this::MODEL,
+                );
+            }
+
+            /**
              * Display a listing of the deleted resource.
              */
             public function fetchDeleted(Request $request): JsonResponse

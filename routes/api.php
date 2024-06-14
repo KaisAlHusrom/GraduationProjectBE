@@ -80,6 +80,12 @@ Route::middleware(['customAuth'])->group(function () {
 
     //Products Categories
     UtilsRoutes::generateResourceUsersRoutes(
+        "payment-plans",
+        \App\Http\Controllers\PaymentPlanController::class,
+        excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete'],
+    );
+
+    UtilsRoutes::generateResourceUsersRoutes(
         "products-categories",
         CategoryController::class,
         excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete'],
@@ -156,11 +162,11 @@ Route::middleware(['customAuth'])->group(function () {
         excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
     );
 
-    // * USERS CAN UPDATE ONLY * //
+    // * USERS CAN UPDATE and fetch specific ONLY * //
     UtilsRoutes::generateResourceUsersRoutes(
         'users',
         UsersController::class,
-        excepts: ['store', 'index', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete', 'fetchSpecificRecord']
+        excepts: ['store', 'index', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
     );
 
 

@@ -18,6 +18,7 @@ class PaymentPlanFeature extends BaseModel
         'payment_plan_feature_name',
         'payment_plan_feature_image',
         'payment_plan_feature_description',
+        'payment_plan_id'
     ];
 
     /**
@@ -33,8 +34,8 @@ class PaymentPlanFeature extends BaseModel
     /**
      * Get the payment plans associated with the feature.
      */
-    public function plans()
+    public function paymentPlan()
     {
-        return $this->belongsToMany(PaymentPlan::class, 'payment_plans_features');
+        return $this->belongsTo(PaymentPlan::class, 'payment_plan_id');
     }
 }
