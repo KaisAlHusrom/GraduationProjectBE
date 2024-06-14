@@ -11,7 +11,7 @@ class PaymentPlanFeatureController extends Controller
         private const TITLE = "Payment Plan Features";
             private const MODEL = PaymentPlanFeature::class;
             private const FILES_FIELD_NAMES = ['payment_plan_feature_image'];
-            private const FETCH_WITH = ["plans"];
+            private const FETCH_WITH = ["paymentPlan"];
             private const IMAGES_FOLDER_NAME = "payment_plan_feature_images";
             private const FILES_FOLDER_NAME = null;
 
@@ -52,11 +52,11 @@ class PaymentPlanFeatureController extends Controller
                     'payment_plan_feature_name'=> "required",
                     'payment_plan_feature_image'=>"nullable",
                     'payment_plan_feature_description'=>"required",
+                    'payment_plan_id'=>"required"
                 ];
 
                 //relations
                 $relationships = [
-                    'plans'
                 ];
 
                 // store the prop
@@ -87,7 +87,7 @@ class PaymentPlanFeatureController extends Controller
 
                 //relations
                 $relationships = [
-                    'plans'
+                    'paymentPlan'
                 ];
 
 

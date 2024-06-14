@@ -17,7 +17,8 @@ class PaymentPlan extends BaseModel
      */
     protected $fillable = [
         'payment_plan_title',
-        'payment_plan_price',
+        'payment_plan_monthly_price',
+        'payment_plan_yearly_price',
         'payment_plan_description',
         'is_active',
     ];
@@ -37,7 +38,7 @@ class PaymentPlan extends BaseModel
      */
     public function features()
     {
-        return $this->belongsToMany(PaymentPlanFeature::class, 'payment_plans_features');
+        return $this->HasMany(PaymentPlanFeature::class, 'payment_plan_id');
     }
 
     /**
