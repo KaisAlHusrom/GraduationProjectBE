@@ -460,7 +460,7 @@ class Controller extends BaseController
 
             // Validate request data
             $validatedData = $request->validate($validationRules);
-
+                Log::info("gelien".json_encode($request->all()));
             // Process file uploads
             foreach ($files as $fileFieldName) {
                 if ($request->hasFile($fileFieldName)) {
