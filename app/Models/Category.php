@@ -18,6 +18,8 @@ class Category extends BaseModel
         'category_name',
         'category_image',
         'category_description',
+        'is_in_the_main_page',
+        'parent_id'
     ];
 
     /**
@@ -33,8 +35,24 @@ class Category extends BaseModel
     /**
      * Get the products associated with the category.
      */
-    public function products()
+    public function products(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Product::class, 'products_categories');
+    }
+
+    /**
+     * Get the children associated with the category.
+     */
+    public function children(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Category::class, 'parent_id');
+    }
+
+    /**
+     * Get the children associated with the category.
+     */
+    public function parent(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
     }
 }

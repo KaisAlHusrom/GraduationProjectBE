@@ -37,6 +37,18 @@ use Illuminate\Support\Facades\Route;
 Route::post("auth/register", [AuthController::class, 'register']);
 Route::post("auth/login", [AuthController::class, 'login']);
 
+UtilsRoutes::generateResourceUsersRoutes(
+    "products-categories",
+    CategoryController::class,
+    excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete'],
+);
+
+UtilsRoutes::generateResourceUsersRoutes(
+    "products",
+    \App\Http\Controllers\ProductController::class,
+    excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
+);
+
 // ! SANCTUM AUTHENTICATION
 Route::middleware(['customAuth'])->group(function () {
     // ------- ! AUTH ! ------------
@@ -70,7 +82,7 @@ Route::middleware(['customAuth'])->group(function () {
     UtilsRoutes::generateResourceUsersRoutes(
         "products",
         \App\Http\Controllers\ProductController::class,
-        excepts: ['restore', 'fetchDeleted', 'permanentDelete']
+        excepts: ['restore', 'fetchDeleted', 'permanentDelete', 'index', 'fetchSpecificRecord']
     );
 
 
@@ -82,12 +94,6 @@ Route::middleware(['customAuth'])->group(function () {
     UtilsRoutes::generateResourceUsersRoutes(
         "payment-plans",
         \App\Http\Controllers\PaymentPlanController::class,
-        excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete'],
-    );
-
-    UtilsRoutes::generateResourceUsersRoutes(
-        "products-categories",
-        CategoryController::class,
         excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete'],
     );
 

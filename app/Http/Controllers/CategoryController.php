@@ -11,7 +11,7 @@ class CategoryController extends Controller
         private const TITLE = "Products Category";
             private const MODEL = Category::class;
             private const FILES_FIELD_NAMES = ['category_image'];
-            private const FETCH_WITH = ['products'];
+            private const FETCH_WITH = ['children', 'parent'];
             private const IMAGES_FOLDER_NAME = "ProductsCategoryImages";
             private const FILES_FOLDER_NAME = null;
 
@@ -26,6 +26,27 @@ class CategoryController extends Controller
                     modelClass: $this::MODEL,
                     with: $this::FETCH_WITH,
                     perPage: 10,
+                );
+            }
+
+            public function fetchSpecificRecord($id): JsonResponse
+            {
+
+                return $this->fetchSpecificRecordTemplate(
+                    title: $this::TITLE,
+                    id: $id,
+                    modelClass: $this::MODEL,
+                    with: [
+                        ...$this::FETCH_WITH,
+                        'products',
+                        'products.user',
+                        'products.productMedia',
+                        'products.productUsedSkills',
+                        'products.productFeatures',
+                        'products.productReviews',
+                        'products.messages',
+                        'products.categories',
+                    ]
                 );
             }
 
@@ -49,13 +70,16 @@ class CategoryController extends Controller
             public function store(Request $request): JsonResponse
             {
                 $validationRules = [
-                    'category_name'=>"required:unique:categories",
+                    'category_name'=>"required|unique:categories",
                     'category_image'=>"nullable",
                     'category_description'=>"required",
+                    'is_in_the_main_page'=>"",
+                    'parent_id'=>''
                 ];
 
                 //relations
                 $relationships = [
+
                 ];
 
                 // store the prop
@@ -82,10 +106,12 @@ class CategoryController extends Controller
                     'category_name'=>'required:unique:categories,categories,'.$id,
                     'category_image'=>"nullable",
                     'category_description'=>"required",
+                    'is_in_the_main_page'=>"",
                 ];
 
                 //relations
                 $relationships = [
+                    'parent'
                 ];
 
 
