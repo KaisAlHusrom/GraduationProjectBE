@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\UsersPaymentPlan;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UsersPaymentPlanController extends Controller
 {
         private const TITLE = "Users Payment Plans";
             private const MODEL = UsersPaymentPlan::class;
             private const FILES_FIELD_NAMES = [];
-            private const FETCH_WITH = ['user', 'paymentPlan'];
+            private const FETCH_WITH = ['user', 'paymentPlan', 'bankCard'];
             private const IMAGES_FOLDER_NAME = null;
             private const FILES_FOLDER_NAME = null;
 
@@ -20,13 +21,25 @@ class UsersPaymentPlanController extends Controller
              */
             public function index(Request $request): JsonResponse
             {
-                return $this->indexTemplate(
-                    title: $this::TITLE,
-                    request: $request,
-                    modelClass: $this::MODEL,
-                    with: $this::FETCH_WITH,
-                    perPage: 10,
-                );
+                $user = Auth::user();
+                if($user->is_admin) {
+                    return $this->indexTemplate(
+                        title: $this::TITLE,
+                        request: $request,
+                        modelClass: $this::MODEL,
+                        with: $this::FETCH_WITH,
+                        perPage: 10,
+                    );
+                } else {
+                    $paymentPlans = UsersPaymentPlan::with(self::FETCH_WITH)
+                        ->where('user_id', $user->id)
+                        ->paginate(1);
+
+                    return DefaultResponseBodies::getSuccessResponse(data: $paymentPlans, message: "Get All Users Payment Plans Successfully");
+
+                }
+
+
             }
 
             /**
@@ -69,6 +82,7 @@ class UsersPaymentPlanController extends Controller
                     'expire_date'=>"required",
                     'is_active'=>"",
                     'bill_date'=>'',
+                    'bank_card_id' => '',
                 ];
 
                 //relations
@@ -105,7 +119,8 @@ class UsersPaymentPlanController extends Controller
                 //relations
                 $relationships = [
                     'paymentPlan',
-                    'user'
+                    'user',
+                    'bankCard'
                 ];
 
 

@@ -2,6 +2,7 @@
 
 use App\Helpers\UtilsRoutes;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BankCardController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DesignCategoryController;
 use App\Http\Controllers\DesignController;
@@ -55,6 +56,22 @@ Route::middleware(['customAuth'])->group(function () {
     Route::get('auth/user', [AuthController::class, "fetchUserData"]);
     Route::get('auth/logout', [AuthController::class, "logout"]);
 
+    //user orders
+    UtilsRoutes::generateResourceUsersRoutes(
+        "orders",
+        \App\Http\Controllers\OrderController::class,
+        excepts: ['restore', 'fetchDeleted', 'permanentDelete', 'update', 'delete']
+    );
+
+    //Bank cards
+    UtilsRoutes::generateResourceUsersRoutes(
+        'bank-cards',
+        BankCardController::class,
+        excepts: ['restore', 'fetchDeleted', 'permanentDelete', 'delete', 'index']
+    );
+    Route::get('user/bank-cards', [BankCardController::class, "fetchUserBankCards"]);
+
+
     // ----- ! Tables normal users can see, add, update and delete ----- ! //
 
     //Web Projects for users
@@ -85,12 +102,18 @@ Route::middleware(['customAuth'])->group(function () {
         excepts: ['restore', 'fetchDeleted', 'permanentDelete', 'index', 'fetchSpecificRecord']
     );
 
+    //Users Payments plans
+    UtilsRoutes::generateResourceUsersRoutes(
+        "users-payment-plans",
+        \App\Http\Controllers\UsersPaymentPlanController::class,
+        excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
+    );
 
 
     // ------ ! Tables Can Normal Users Just See ! ------- //
 
 
-    //Products Categories
+    //payment plans
     UtilsRoutes::generateResourceUsersRoutes(
         "payment-plans",
         \App\Http\Controllers\PaymentPlanController::class,
@@ -161,12 +184,7 @@ Route::middleware(['customAuth'])->group(function () {
         excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
     );
 
-    //Users Payments plans
-    UtilsRoutes::generateResourceUsersRoutes(
-        "users-payment-plans",
-        \App\Http\Controllers\UsersPaymentPlanController::class,
-        excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
-    );
+
 
     // * USERS CAN UPDATE and fetch specific ONLY * //
     UtilsRoutes::generateResourceUsersRoutes(
@@ -184,6 +202,12 @@ Route::middleware(['customAuth'])->group(function () {
         UtilsRoutes::generateResourceAdminRoutes(
             'users',
             UsersController::class
+        );
+
+        //Bank cards
+        UtilsRoutes::generateResourceAdminRoutes(
+            'bank-cards',
+            BankCardController::class
         );
 
         //style props categories
