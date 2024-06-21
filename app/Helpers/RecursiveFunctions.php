@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Design;
+use App\Models\DesignedElementsPropValue;
 use App\Models\LinkedStyleProp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -91,11 +92,24 @@ class RecursiveFunctions
 
             // Handle styles
             if (!empty($design['styles'])) {
-                $resource->styles()->delete();
+                $resource->styles()->forceDelete();
                 foreach ($design['styles'] as $style) {
                     $style['design_id'] = $resource->id;
                     $newStyle = LinkedStyleProp::create($style);
                     if (!$newStyle) {
+                        $controller = false;
+                        return;
+                    }
+                }
+            }
+
+            //handle design props
+            if(!empty($design["design_prop_values"])) {
+                $resource->designPropValues()->forceDelete();
+                foreach ($design['design_prop_values'] as $prop) {
+                    $prop['design_id'] = $resource->id;
+                    $newProp = DesignedElementsPropValue::create($prop);
+                    if (!$newProp) {
                         $controller = false;
                         return;
                     }
@@ -110,9 +124,9 @@ class RecursiveFunctions
                 $existingChildrenIds = $resource->children()->pluck('id')->toArray();
                 $updatedChildrenIds = collect($design['children'])->pluck('id')->toArray();
                 $childrenToDelete = array_diff($existingChildrenIds, $updatedChildrenIds);
-                Log::info("existingChildrenIds " . json_encode($existingChildrenIds) );
-                Log::info("updatedChildrenIds " . json_encode($updatedChildrenIds) );
-                Log::info("childrenToDelete " . json_encode($childrenToDelete) );
+//                Log::info("existingChildrenIds " . json_encode($existingChildrenIds) );
+//                Log::info("updatedChildrenIds " . json_encode($updatedChildrenIds) );
+//                Log::info("childrenToDelete " . json_encode($childrenToDelete) );
                 // Delete removed children
                 if (!empty($childrenToDelete)) {
                     Design::whereIn('id', $childrenToDelete)->forceDelete();
@@ -184,7 +198,16 @@ class RecursiveFunctions
                 }
             }
 
-
+            if(!empty($design["design_prop_values"])) {
+                foreach ($design['design_prop_values'] as $prop) {
+                    $prop['design_id'] = $new->id;
+                    $newProp = DesignedElementsPropValue::create($prop);
+                    if (!$newProp) {
+                        $controller = false;
+                        return;
+                    }
+                }
+            }
 
             // Handle children
             if (!empty($design['children'])) {

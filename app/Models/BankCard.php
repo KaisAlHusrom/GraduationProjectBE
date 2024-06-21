@@ -91,4 +91,12 @@ class BankCard extends BaseModel
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Get the user that owns the plan.
+     */
+    public function payments()
+    {
+        return $this->hasMany(UsersPayment::class, 'bank_card_id');
+    }
 }

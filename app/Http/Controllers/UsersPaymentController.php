@@ -15,6 +15,7 @@ class UsersPaymentController extends Controller
                 'user',
                 'userPaymentPlan',
                 'order',
+                'bankCard'
             ];
             private const IMAGES_FOLDER_NAME = null;
             private const FILES_FOLDER_NAME = null;
@@ -57,7 +58,8 @@ class UsersPaymentController extends Controller
                     'user_payment_plan_id'=>"",
                     'order_id'=>"",
                     'amount'=>"required",
-                    'status'=>"required"
+                    'status'=>"required",
+                    'bank_card_id'=>""
                 ];
 
                 //relations
@@ -94,6 +96,7 @@ class UsersPaymentController extends Controller
                     'user',
                     'order',
                     'userPaymentPlan',
+                    'bankCard'
                 ];
 
 

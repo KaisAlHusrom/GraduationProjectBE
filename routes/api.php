@@ -32,7 +32,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-
+//TODO: I have to add middleware or something to ensure that noraml user can't delete, change or update other's users' info
 //Sanctum::routes();
 // ! WITH NO AUTHENTICATIONS MIDDLEWARES
 Route::post("auth/register", [AuthController::class, 'register']);
@@ -74,6 +74,13 @@ Route::middleware(['customAuth'])->group(function () {
 
     // ----- ! Tables normal users can see, add, update and delete ----- ! //
 
+    //Designs Prop Values
+    UtilsRoutes::generateResourceUsersRoutes(
+        "design-prop-values",
+        \App\Http\Controllers\DesignedElementsPropValueController::class,
+        excepts: ['restore', 'fetchDeleted', 'permanentDelete']
+    );
+
     //Web Projects for users
     UtilsRoutes::generateResourceUsersRoutes(
         "pages",
@@ -111,6 +118,12 @@ Route::middleware(['customAuth'])->group(function () {
 
 
     // ------ ! Tables Can Normal Users Just See ! ------- //
+    //Users Payments
+    UtilsRoutes::generateResourceUsersRoutes(
+        "users-payments",
+        \App\Http\Controllers\UsersPaymentController::class,
+        excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete'],
+    );
 
 
     //payment plans
@@ -279,6 +292,12 @@ Route::middleware(['customAuth'])->group(function () {
         UtilsRoutes::generateResourceAdminRoutes(
             "designs",
             DesignController::class
+        );
+
+        //Designs Prop Values
+        UtilsRoutes::generateResourceAdminRoutes(
+            "design-prop-values",
+            \App\Http\Controllers\DesignedElementsPropValueController::class
         );
 
         // --- E Commerce Routes --- //

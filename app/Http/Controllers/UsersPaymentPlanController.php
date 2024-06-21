@@ -21,25 +21,13 @@ class UsersPaymentPlanController extends Controller
              */
             public function index(Request $request): JsonResponse
             {
-                $user = Auth::user();
-                if($user->is_admin) {
-                    return $this->indexTemplate(
-                        title: $this::TITLE,
-                        request: $request,
-                        modelClass: $this::MODEL,
-                        with: $this::FETCH_WITH,
-                        perPage: 10,
-                    );
-                } else {
-                    $paymentPlans = UsersPaymentPlan::with(self::FETCH_WITH)
-                        ->where('user_id', $user->id)
-                        ->paginate(1);
-
-                    return DefaultResponseBodies::getSuccessResponse(data: $paymentPlans, message: "Get All Users Payment Plans Successfully");
-
-                }
-
-
+                return $this->indexTemplate(
+                    title: $this::TITLE,
+                    request: $request,
+                    modelClass: $this::MODEL,
+                    with: $this::FETCH_WITH,
+                    perPage: 10,
+                );
             }
 
             /**

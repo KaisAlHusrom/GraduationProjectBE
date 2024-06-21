@@ -55,4 +55,12 @@ class UsersPayment extends BaseModel
     {
         return $this->belongsTo(Order::class);
     }
+
+    /**
+     * Get the user that owns the plan.
+     */
+    public function bankCard()
+    {
+        return $this->belongsTo(BankCard::class, 'bank_card_id');
+    }
 }

@@ -68,6 +68,7 @@ class Design extends BaseModel
                     'styles',
                     'parent',
                     'pages',
+                    'designPropValues.elementProp'
                 ]
             );
     }
@@ -102,5 +103,11 @@ class Design extends BaseModel
     public function styles()
     {
         return $this->hasMany(LinkedStyleProp::class, "design_id");
+    }
+
+    //get linked prop values
+    public function designPropValues()
+    {
+        return $this->hasMany(DesignedElementsPropValue::class, "design_id");
     }
 }

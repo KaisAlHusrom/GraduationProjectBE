@@ -27,6 +27,7 @@ class DesignController extends Controller
                 'parent',
                 'pages',
                 'category',
+                'designPropValues.elementProp',
             ];
             private const IMAGES_FOLDER_NAME = "DesignsImages";
 
@@ -80,7 +81,8 @@ class DesignController extends Controller
                                 'pages',
                                 'children' => function ($query) use ($depth) {
                                     $this->loadRecursive($query, $depth - 1);
-                                }
+                                },
+                                'designPropValues'
                             ]);
                         }
                     ]);
@@ -135,6 +137,7 @@ class DesignController extends Controller
                         'children' => "array",
                         'styles' => "array",
                         'page_id' => "",
+                        'design_prop_values'=>""
                     ];
 
 
@@ -192,7 +195,7 @@ class DesignController extends Controller
                         'children' => "array",
                         'styles' => "array",
                         'page_id' => "",
-
+                        'design_prop_values' => "",
                     ];
 
                     $validatedData = $request->validate($validationRules);
