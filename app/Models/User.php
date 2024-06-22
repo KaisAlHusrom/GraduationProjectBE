@@ -105,4 +105,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserProductOwnerMessage::class, 'sender_id');
     }
+
+    /**
+     * Get the bank cards for the user.
+     */
+    public function bankCards()
+    {
+        return $this->hasMany(BankCard::class);
+    }
 }

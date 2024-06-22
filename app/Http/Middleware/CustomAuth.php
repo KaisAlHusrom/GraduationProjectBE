@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Middleware;
+use App\Http\Controllers\DefaultResponseBodies;
 use App\Models\PersonalAccessToken;
 use Closure;
 use Illuminate\Http\Request;
@@ -25,19 +26,19 @@ class CustomAuth
         // Extract token from the Authorization header
         $authHeader = $request->header('Authorization');
         if (!$authHeader || !preg_match('/Bearer\s0\|(\S+)/', $authHeader, $matches)) {
-            return response('Unauthenticated', 401);
+            return DefaultResponseBodies::getUnauthorizedResponse();
         }
 
         $token = $matches[1];
       // Check the token against the database
         $personalAccessToken = PersonalAccessToken::where('token', hash('sha256', $token))->first();
         if (!$personalAccessToken) {
-            return response('Unauthenticated2', 401);
+            return DefaultResponseBodies::getUnauthorizedResponse();
         }
 
         // Check if the token is expired
         if (Carbon::parse($personalAccessToken->expires_at)->isPast()) {
-            return response('Token expired3', 401);
+            return DefaultResponseBodies::getUnauthorizedResponse();
         }
 
         // Set the authenticated user

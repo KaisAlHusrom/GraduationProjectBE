@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Controllers\DefaultResponseBodies;
 use Closure;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
@@ -30,6 +31,6 @@ class AdminMiddleware
 
         // If the user is not an admin, you can customize the response or redirect as needed.
         // For example, you can return a forbidden response:
-        return response('Unauthorized', 403);
+        return DefaultResponseBodies::getUnauthorizedResponse();
     }
 }

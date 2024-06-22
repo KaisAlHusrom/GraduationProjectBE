@@ -51,6 +51,8 @@ class DataProcess
             $period = $appliedFilter['period'];
             $relationValue = $appliedFilter['relationValue'] ?? null;
 
+            Log::info('relationValue:', ['relationValue' => $relationValue]);
+
             // Apply the appropriate condition based on filter type
             switch ($filter['type']) {
                 case 'string':
@@ -139,9 +141,11 @@ class DataProcess
                     // Apply relational conditions
                     if ($relationValue) {
                         $query->whereHas($filter['value'], function ($query) use ($relationValue) {
+                            // $relatedModel = $query->getModel()->$filter['value']()->getRelated();
+
                             foreach ($relationValue as $relationItem) {
                                 // Check for any of the specified relation IDs
-                                $query->orWhere('id', '=', $relationItem['id']);
+                                $query->orWhere('id', '=', $relationItem);
                             }
                         });
                     }
@@ -166,6 +170,7 @@ class DataProcess
 
     public static function searchData(Builder $query, $searchQuery) : Builder
     {
+        Log::info("search query". json_encode($searchQuery));
         if ($searchQuery) {
             $columnName = $searchQuery["columnName"];
             $searchTerm = str_replace(' ', '', strtolower($searchQuery["searchTerm"]));

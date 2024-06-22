@@ -2,6 +2,7 @@
 
 use App\Helpers\UtilsRoutes;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BankCardController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DesignCategoryController;
 use App\Http\Controllers\DesignController;
@@ -31,11 +32,23 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-
+//TODO: I have to add middleware or something to ensure that noraml user can't delete, change or update other's users' info
 //Sanctum::routes();
 // ! WITH NO AUTHENTICATIONS MIDDLEWARES
 Route::post("auth/register", [AuthController::class, 'register']);
 Route::post("auth/login", [AuthController::class, 'login']);
+
+UtilsRoutes::generateResourceUsersRoutes(
+    "products-categories",
+    CategoryController::class,
+    excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete'],
+);
+
+UtilsRoutes::generateResourceUsersRoutes(
+    "products",
+    \App\Http\Controllers\ProductController::class,
+    excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
+);
 
 // ! SANCTUM AUTHENTICATION
 Route::middleware(['customAuth'])->group(function () {
@@ -43,7 +56,30 @@ Route::middleware(['customAuth'])->group(function () {
     Route::get('auth/user', [AuthController::class, "fetchUserData"]);
     Route::get('auth/logout', [AuthController::class, "logout"]);
 
+    //user orders
+    UtilsRoutes::generateResourceUsersRoutes(
+        "orders",
+        \App\Http\Controllers\OrderController::class,
+        excepts: ['restore', 'fetchDeleted', 'permanentDelete', 'update', 'delete']
+    );
+
+    //Bank cards
+    UtilsRoutes::generateResourceUsersRoutes(
+        'bank-cards',
+        BankCardController::class,
+        excepts: ['restore', 'fetchDeleted', 'permanentDelete', 'delete', 'index']
+    );
+    Route::get('user/bank-cards', [BankCardController::class, "fetchUserBankCards"]);
+
+
     // ----- ! Tables normal users can see, add, update and delete ----- ! //
+
+    //Designs Prop Values
+    UtilsRoutes::generateResourceUsersRoutes(
+        "design-prop-values",
+        \App\Http\Controllers\DesignedElementsPropValueController::class,
+        excepts: ['restore', 'fetchDeleted', 'permanentDelete']
+    );
 
     //Web Projects for users
     UtilsRoutes::generateResourceUsersRoutes(
@@ -74,24 +110,30 @@ Route::middleware(['customAuth'])->group(function () {
     UtilsRoutes::generateResourceUsersRoutes(
         "products",
         \App\Http\Controllers\ProductController::class,
-        excepts: ['restore', 'fetchDeleted', 'permanentDelete']
+        excepts: ['restore', 'fetchDeleted', 'permanentDelete', 'index', 'fetchSpecificRecord']
     );
 
+    //Users Payments plans
+    UtilsRoutes::generateResourceUsersRoutes(
+        "users-payment-plans",
+        \App\Http\Controllers\UsersPaymentPlanController::class,
+        excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
+    );
 
 
     // ------ ! Tables Can Normal Users Just See ! ------- //
-
-
-    //Products Categories
+    //Users Payments
     UtilsRoutes::generateResourceUsersRoutes(
-        "payment-plans",
-        \App\Http\Controllers\PaymentPlanController::class,
+        "users-payments",
+        \App\Http\Controllers\UsersPaymentController::class,
         excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete'],
     );
 
+
+    //payment plans
     UtilsRoutes::generateResourceUsersRoutes(
-        "products-categories",
-        CategoryController::class,
+        "payment-plans",
+        \App\Http\Controllers\PaymentPlanController::class,
         excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete'],
     );
 
@@ -159,12 +201,7 @@ Route::middleware(['customAuth'])->group(function () {
         excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
     );
 
-    //Users Payments plans
-    UtilsRoutes::generateResourceUsersRoutes(
-        "users-payment-plans",
-        \App\Http\Controllers\UsersPaymentPlanController::class,
-        excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
-    );
+
 
     // * USERS CAN UPDATE and fetch specific ONLY * //
     UtilsRoutes::generateResourceUsersRoutes(
@@ -182,6 +219,12 @@ Route::middleware(['customAuth'])->group(function () {
         UtilsRoutes::generateResourceAdminRoutes(
             'users',
             UsersController::class
+        );
+
+        //Bank cards
+        UtilsRoutes::generateResourceAdminRoutes(
+            'bank-cards',
+            BankCardController::class
         );
 
         //style props categories
@@ -253,6 +296,12 @@ Route::middleware(['customAuth'])->group(function () {
         UtilsRoutes::generateResourceAdminRoutes(
             "designs",
             DesignController::class
+        );
+
+        //Designs Prop Values
+        UtilsRoutes::generateResourceAdminRoutes(
+            "design-prop-values",
+            \App\Http\Controllers\DesignedElementsPropValueController::class
         );
 
         // --- E Commerce Routes --- //
