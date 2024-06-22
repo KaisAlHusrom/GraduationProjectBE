@@ -71,6 +71,9 @@ class WebProjectController extends Controller
             'project_description' => "required",
             'is_template'   => "",
             'is_own_project' => "",
+            'is_published' => "",
+
+
         ];
 
         //relations
@@ -104,6 +107,8 @@ class WebProjectController extends Controller
                     'project_description' => "required",
                     'is_template'   => "",
                     'is_own_project' => "",
+                    'is_published' => "",
+
                 ];
 
         //relations

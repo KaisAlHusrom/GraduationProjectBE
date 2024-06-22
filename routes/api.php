@@ -66,6 +66,10 @@ Route::middleware(['customAuth'])->group(function () {
         excepts: ['restore', 'fetchDeleted', 'permanentDelete']
     );
 
+    Route::post('user/designs/update-sorting', [DesignController::class, 'UpdateSorting']);
+
+
+
     //Products
     UtilsRoutes::generateResourceUsersRoutes(
         "products",
