@@ -15,6 +15,7 @@ class ProductFeature extends BaseModel
      * @var array
      */
     protected $fillable = [
+        'id',
         'product_id',
         'product_feature_name',
         'product_feature_description',

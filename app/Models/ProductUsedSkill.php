@@ -15,6 +15,7 @@ class ProductUsedSkill extends BaseModel
      * @var array
      */
     protected $fillable = [
+        'id',
         'product_id',
         'product_used_skill_name',
         'how_used',

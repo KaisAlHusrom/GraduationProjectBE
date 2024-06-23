@@ -10,6 +10,7 @@ use App\Http\Controllers\ElementPropController;
 use App\Http\Controllers\ElementTypeCategoryController;
 use App\Http\Controllers\ElementTypeController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StylePropController;
 use App\Http\Controllers\StylePropsCategoryController;
 use App\Http\Controllers\StylePropsValueController;
@@ -105,9 +106,13 @@ Route::middleware(['customAuth'])->group(function () {
     //Products
     UtilsRoutes::generateResourceUsersRoutes(
         "products",
-        \App\Http\Controllers\ProductController::class,
-        excepts: ['restore', 'fetchDeleted', 'permanentDelete', 'index', 'fetchSpecificRecord']
+        ProductController::class,
+        excepts: ['store', 'update', 'restore', 'fetchDeleted', 'permanentDelete', 'index', 'fetchSpecificRecord']
     );
+    Route::patch('user/products/{id}', [ProductController::class, 'updateUser']);
+    Route::post('user/products', [ProductController::class, 'saveUser']);
+
+
 
     //Users Payments plans
     UtilsRoutes::generateResourceUsersRoutes(
