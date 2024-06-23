@@ -28,6 +28,16 @@ class PageController extends Controller
             perPage: 10,
         );
     }
+    public function fetchSpecificRecord($id): JsonResponse
+    {
+
+        return $this->fetchSpecificRecordTemplate(
+            title: $this::TITLE,
+            id: $id,
+            modelClass: $this::MODEL,
+            with: $this::FETCH_WITH,
+        );
+    }
 
     /*
      * Display a listing of the deleted resource.
@@ -84,16 +94,17 @@ class PageController extends Controller
         $validationRules = [
             'page_title' => "required",
             'page_description' => "required",
-            'page_image' => "",
+            'page_image' => "required",
             'is_template' => "",
             'web_project_id' => "required",
             'page_path'=> "",
             "id" => ""
-
         ];
+
+
         //relations
         $relationships = [
-            'webProject'
+            'designs'
         ];
 
         // Call storeTemplate function to store the post and its related models

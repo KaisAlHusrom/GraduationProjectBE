@@ -11,6 +11,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class DesignController extends Controller
@@ -171,7 +172,29 @@ class DesignController extends Controller
 
             }
 
+            public function UpdateSorting (Request $request) {
+                try {
+                    $designs = $request->input('designs');
+                    $validator = Validator::make($request->all(), [
+                        'designs' => 'required|array',
 
+                    ]);
+                    Log::info("designs: " , $designs);
+
+                    foreach ($designs as $design) {
+                        $res = Design::find($design['id']);
+                        $res->sequence_number = $design['sequence_number'];
+                        $res->save();
+
+                    }
+                    return DefaultResponseBodies::getSuccessResponse(data: [], message: $this::TITLE . " updated successfully");
+
+                }
+
+             catch (\Exception $e) {
+                return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Unexpected error");
+            }
+            }
 
             /**
              * Update the specified resource in storage.

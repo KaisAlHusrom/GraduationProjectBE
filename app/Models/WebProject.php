@@ -24,6 +24,7 @@ class WebProject extends BaseModel
         'project_description',
         'is_template',
         'is_own_project',
+        'is_published'
     ];
 
     /**
