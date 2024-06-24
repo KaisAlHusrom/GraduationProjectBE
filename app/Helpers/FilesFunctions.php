@@ -80,8 +80,9 @@ class FilesFunctions
                 Storage::delete($filePath);
             }
 
+            Log::info("Video path outside: " . $videoPath);
             if (Storage::exists($videoPath)) {
-                Log::info("Video path: " . $videoPath);
+                Log::info("Video path inside: " . $videoPath);
                 // Delete the associated video
                 Storage::delete($videoPath);
             }
