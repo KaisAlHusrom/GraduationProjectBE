@@ -9,8 +9,10 @@ use App\Http\Controllers\DesignController;
 use App\Http\Controllers\ElementPropController;
 use App\Http\Controllers\ElementTypeCategoryController;
 use App\Http\Controllers\ElementTypeController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\StripePaymentController;
 use App\Http\Controllers\StylePropController;
 use App\Http\Controllers\StylePropsCategoryController;
 use App\Http\Controllers\StylePropsValueController;
@@ -51,18 +53,33 @@ UtilsRoutes::generateResourceUsersRoutes(
     excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
 );
 
+//payment plans
+UtilsRoutes::generateResourceUsersRoutes(
+    "payment-plans",
+    \App\Http\Controllers\PaymentPlanController::class,
+    excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete'],
+);
+
+//access and reject payments routes, in checkout function I made a simple authentication process
+Route::get('user/success-checkout', [StripePaymentController::class, 'success'])->name('success-checkout');
+Route::get('user/fail-checkout', [StripePaymentController::class, 'fail'])->name('fail-checkout');
+
 // ! SANCTUM AUTHENTICATION
 Route::middleware(['customAuth'])->group(function () {
     // ------- ! AUTH ! ------------
     Route::get('auth/user', [AuthController::class, "fetchUserData"]);
     Route::get('auth/logout', [AuthController::class, "logout"]);
 
+    Route::post('user/checkout', [StripePaymentController::class, 'checkout']);
+
+
     //user orders
     UtilsRoutes::generateResourceUsersRoutes(
         "orders",
-        \App\Http\Controllers\OrderController::class,
+        OrderController::class,
         excepts: ['restore', 'fetchDeleted', 'permanentDelete', 'update', 'delete']
     );
+    Route::get('user/orders/coming-orders/fetch', [OrderController::class, "fetchComingOrders"]);
 
     //Bank cards
     UtilsRoutes::generateResourceUsersRoutes(
@@ -135,12 +152,6 @@ Route::middleware(['customAuth'])->group(function () {
     );
 
 
-    //payment plans
-    UtilsRoutes::generateResourceUsersRoutes(
-        "payment-plans",
-        \App\Http\Controllers\PaymentPlanController::class,
-        excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete'],
-    );
 
     //style props categories
     UtilsRoutes::generateResourceUsersRoutes(

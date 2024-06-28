@@ -66,7 +66,7 @@ class BankCard extends BaseModel
         $originalCardNumber = $this->getOriginalCardNumber($encryptedCardNumber);
 
         // Mask the card number, keeping the first 4 and last 4 digits visible
-        return substr($originalCardNumber, 0, 4) . str_repeat('*', strlen($originalCardNumber) - 8) . substr($originalCardNumber, -4);
+        return substr($originalCardNumber, 0, 4) . str_repeat('*', strlen($originalCardNumber) - 8);
     }
 
     /**

@@ -29,6 +29,9 @@ class Order extends BaseModel
         'user_id',
         'total_amount',
         'status',
+        'stripe_session_id',
+        'currency',
+        'session_token'
     ];
 
     /**
