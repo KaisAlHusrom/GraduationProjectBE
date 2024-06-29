@@ -2,13 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\FilesFunctions;
 use App\Models\Product;
+use App\Models\ProductsCategory;
+use Illuminate\Database\Eloquent\MassAssignmentException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
 {
-        private const TITLE = "Products";
+            private const TITLE = "Products";
             private const MODEL = Product::class;
             private const FILES_FIELD_NAMES = ["product_main_image_name", "product_file_name"];
             private const FETCH_WITH = [
@@ -98,9 +106,249 @@ class ProductController extends Controller
                 );
             }
 
+            /***
+             *  Store for normal users
+             */
+            public function saveUser(Request $request): JsonResponse{
+                try {
+                    $validationRules = [
+                        'product_name'=>"required",
+                        'user_id'=>"required",
+                        'product_short_description'=>"required",
+                        'product_long_description'=>"required",
+                        'product_price'=>"required",
+                        'product_main_image_name'=>"required",
+                        'product_file_name'=>"required",
+                        'product_features'=>"required|array",
+                        'product_used_skills'=>"required|array",
+                        'product_media'=>"",
+                        'categories' =>"required|array",
+                    ];
+
+                    $validatedData = Validator::make($request->all(), $validationRules)->validate();
+
+                    //Save File
+                    $fileValue = $request->file('product_file_name');
+                    $productFileName = FilesFunctions::saveFile(
+                        file: $fileValue,
+                        filesFolderName: $this::FILES_FOLDER_NAME,
+                    );
+                    $validatedData['product_file_name'] = $productFileName;
+
+                    //Save Image
+                    $mainImageValue = $request->file('product_main_image_name');
+                    $mainImageName = FilesFunctions::saveFile(
+                        file: $mainImageValue,
+                        imagesFolderName: $this::IMAGES_FOLDER_NAME,
+                    );
+                    $validatedData['product_main_image_name'] = $mainImageName;
+
+                    //Add new product
+                    $product = Product::create($validatedData);
+
+                    //save product categories
+                    if (!empty($request->categories)) {
+                        foreach ($request->categories as $cat) {
+                            $newCategory = [
+                                'product_id' => $product->id,
+                                'category_id' => $cat['id'], // Access 'id' directly from array
+                            ];
+
+                            ProductsCategory::create($newCategory);
+                        }
+                    }
+
+                    //save product features
+                    if (!empty($request->product_features)) {
+                        foreach ($request->product_features as $feature) {
+
+                            $product->productFeatures()->create($feature);
+                        }
+                    }
+
+                    //save product used skills
+                    if (!empty($request->product_used_skills)) {
+                        foreach ($request->product_used_skills as $skill) {
+
+                            $product->productUsedSkills()->create($skill);
+                        }
+                    }
+
+                    //save product media
+                    if (!empty($request->product_media)) {
+                        foreach ($request->product_media as $index => $media) {
+                            if ($request->hasFile('product_media.' . $index . '.product_media_name')) {
+
+                                $fileValue = $request->file('product_media.' . $index . '.product_media_name');
+                                $fileName = FilesFunctions::saveFile(
+                                    file: $fileValue,
+                                    imagesFolderName: 'ProductsMedia'
+                                );
+                                $newMedia = [
+                                    'product_media_name' => $fileName,
+                                    'is_video' => $media['is_video'],
+                                ];
+                                $product->productMedia()->create($newMedia);
+                            }
+                        }
+                    }
+
+                    return DefaultResponseBodies::getSuccessResponse(data: $product, message: "Product created successfully");
+                } catch (ModelNotFoundException $e) {
+                    return DefaultResponseBodies::getNotFoundResponse(error: $e->getMessage(), message: "Related model not found");
+                } catch (QueryException $e) {
+                    return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Database query error");
+                } catch (ValidationException $e) {
+                    return DefaultResponseBodies::getValidationErrorResponse(
+                        error: $e->getMessage(),
+                        message: "Validation Error",
+                        errors: $e->validator->errors()
+                    );
+                } catch (MassAssignmentException $e) {
+                    return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Fillable Error");
+                } catch (\Exception $e) {
+                    return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Unexpected error");
+                }
+            }
 
 
-            /**
+            /*
+             *Update for user
+             *
+            **/
+            public function updateUser(Request $request, $id): JsonResponse{
+                try {
+                    $validationRules = [
+                        'product_name'=>"required",
+                        'user_id'=>"required",
+                        'product_short_description'=>"required",
+                        'product_long_description'=>"required",
+                        'product_price'=>"required",
+                        'product_main_image_name'=>"required",
+                        'product_file_name'=>"required",
+                        'product_features'=>"required|array",
+                        'product_used_skills'=>"required|array",
+                        'product_media'=>"",
+                        'categories' =>"required|array",
+                    ];
+
+                    $validatedData = Validator::make($request->all(), $validationRules)->validate();
+
+                    $resource = Product::findOrFail($id);
+                    //update product main image
+                    if($request->hasFile("product_main_image_name")) {
+                        $fileValue = $request->file("product_main_image_name");
+                        $oldFileName = $resource->product_main_image_name;
+
+                        if ($oldFileName) {
+                            FilesFunctions::deleteFile($oldFileName, $this::IMAGES_FOLDER_NAME);
+                        }
+
+                        $newFileName = FilesFunctions::saveFile(
+                            file: $fileValue,
+                            imagesFolderName: $this::IMAGES_FOLDER_NAME,
+                        );
+                        $validatedData['product_main_image_name'] = $newFileName;
+                    }
+
+                    //update product file
+                    if($request->hasFile("product_file_name")) {
+                        $fileValue = $request->file("product_file_name");
+                        $oldFileName = $resource->product_file_name;
+
+                        if ($oldFileName) {
+                            FilesFunctions::deleteFile($oldFileName, null, filesFolderName: $this::FILES_FOLDER_NAME);
+                        }
+
+                        $newFileName = FilesFunctions::saveFile(
+                            file: $fileValue,
+                            filesFolderName: $this::FILES_FOLDER_NAME,
+                        );
+                        $validatedData['product_file_name'] = $newFileName;
+                    }
+
+                    //save product categories
+                    if (!empty($request->categories)) {
+                        $resource->categories()->detach();
+                        foreach ($request->categories as $cat) {
+
+                            $resource->categories()->attach($cat['id']);
+                        }
+                    }
+
+                    //save product features
+                    if (!empty($request->product_features)) {
+                        $resource->productFeatures()->forceDelete();
+                        foreach ($request->product_features as $feature) {
+
+                            $resource->productFeatures()->create($feature);
+                        }
+                    }
+
+                    //save product used skills
+                    if (!empty($request->product_used_skills)) {
+                        $resource->productUsedSkills()->forceDelete();
+
+                        foreach ($request->product_used_skills as $skill) {
+
+                            $resource->productUsedSkills()->create($skill);
+                        }
+                    }
+
+                    //save product media
+                    if (!empty($request->product_media)) {
+                        $existingMedia = $resource->productMedia()->get(); // Retrieve all existing media
+
+                        foreach ($existingMedia as $oldMedia) {
+                            $oldFileName = $oldMedia->product_media_name;
+
+                            // Check if this old media file name exists in the new request
+                            $mediaExistsInRequest = collect($request->product_media)->contains('product_media_name', $oldFileName);
+                            if (!$mediaExistsInRequest) {
+                                // Delete the file from storage
+                                FilesFunctions::deleteFile($oldFileName, "ProductsMedia");
+
+                                // Delete the media entry
+                                $oldMedia->forceDelete();
+                            }
+                        }
+
+                        foreach ($request->product_media as $index => $media) {
+                            if ($request->hasFile('product_media.' . $index . '.product_media_name')) {
+                                $fileValue = $request->file('product_media.' . $index . '.product_media_name');
+                                $fileName = FilesFunctions::saveFile(
+                                    file: $fileValue,
+                                    imagesFolderName: 'ProductsMedia'
+                                );
+                                $newMedia = [
+                                    'product_media_name' => $fileName,
+                                    'is_video' => $media['is_video']
+                                ];
+                                $resource->productMedia()->create($newMedia);
+                            }
+                        }
+                    }
+
+                    $resource->update($validatedData);
+                    return DefaultResponseBodies::getSuccessResponse(data: $resource, message: "Product updated successfully");
+
+
+                } catch (QueryException $e) {
+                    return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Database query error");
+                } catch (ValidationException $e) {
+                    return DefaultResponseBodies::getValidationErrorResponse(
+                        error: $e->getMessage(),
+                        message: "Validation Error",
+                        errors: $e->validator->errors()
+                    );
+                } catch (MassAssignmentException $e) {
+                    return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Fillable Error");
+                } catch (\Exception $e) {
+                    return DefaultResponseBodies::getInternalServerErrorResponse(error: $e->getMessage(), message: "Unexpected error");
+                }
+            }
+
+            /*
              * Update the specified resource in storage.
              */
             public function update(Request $request, $id): JsonResponse

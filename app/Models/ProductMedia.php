@@ -27,6 +27,7 @@ class ProductMedia extends BaseModel
      */
     protected $casts = [
         'id' => 'string',
+        'is_video' => 'boolean',
         // Add any other attributes that you want to cast here
     ];
 

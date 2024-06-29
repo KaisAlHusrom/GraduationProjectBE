@@ -48,7 +48,8 @@ class BankCardController extends Controller
                 'id' => $card->id,
                 'user_id' => $card->user_id,
                 'card_holder_name' => $card->card_holder_name,
-                'card_number' => $card->card_number_formatted, // Use the accessor
+                'card_number' => $card->card_number,
+                'expiry_date' => $card->expiry_date,
                 'created_at' => $card->created_at,
                 'updated_at' => $card->updated_at
             ];

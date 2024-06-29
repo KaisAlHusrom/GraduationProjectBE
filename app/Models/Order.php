@@ -29,6 +29,9 @@ class Order extends BaseModel
         'user_id',
         'total_amount',
         'status',
+        'stripe_session_id',
+        'currency',
+        'session_token'
     ];
 
     /**
@@ -54,6 +57,8 @@ class Order extends BaseModel
     {
         return $this->belongsToMany(Product::class, 'order_items')
             ->withPivot('quantity', 'sub_total')
-            ->withTimestamps();
+            ->withTimestamps()
+            ->withTrashed(); // Include soft-deleted products
+
     }
 }

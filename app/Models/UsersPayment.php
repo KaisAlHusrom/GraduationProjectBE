@@ -19,7 +19,10 @@ class UsersPayment extends BaseModel
         'user_payment_plan_id',
         'order_id',
         'amount',
-        'status'
+        'status',
+        'stripe_session_id',
+        'currency',
+        'session_token'
     ];
 
     /**

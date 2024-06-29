@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
@@ -29,6 +30,25 @@ class OrderController extends Controller
                 );
             }
 
+            /*
+             * fetch coming orders
+             */
+            public function fetchComingOrders(): JsonResponse {
+                $user = Auth::user();
+
+                // Fetch orders where the user is the owner of any product
+                $comingOrders = Order::whereHas('products', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                })
+                    ->withoutTimestamps()
+                    ->with('products')
+                    ->orderBy('orders.created_at', 'desc') // Specify the table for created_at
+                    ->get();
+
+                return DefaultResponseBodies::getSuccessResponse(data: $comingOrders, message: "Get all coming orders successfully");
+            }
+
+
             /**
              * Display a listing of the deleted resource.
              */
@@ -52,6 +72,8 @@ class OrderController extends Controller
                     'user_id'=> "required",
                     'total_amount'=> "required",
                     'status'=> "required",
+                    'stripe_session_id' => "required",
+                    'currency'=> "required"
                 ];
 
                 //relations
@@ -81,6 +103,8 @@ class OrderController extends Controller
                 $validationRules = [
                     'total_amount'=> "required",
                     'status'=> "required",
+                    'stripe_session_id' => "required",
+                    'currency'=> "required"
                 ];
 
                 //relations
