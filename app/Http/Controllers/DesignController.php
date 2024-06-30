@@ -146,7 +146,16 @@ class DesignController extends Controller
 
                     // Start the save process
                     $controller = true;
-                    RecursiveFunctions::handleSaveDesigns($validatedData, $request, $this::IMAGES_FOLDER_NAME, $this::IMAGES_INSIDE_DESIGNS_FOLDER_NAME, '', $controller);
+                    RecursiveFunctions::handleSaveDesigns(
+                        design : $validatedData,
+                        request : $request,
+                        imagesFolderName : $this::IMAGES_FOLDER_NAME,
+                        imagesInsideDesignFolderName : $this::IMAGES_INSIDE_DESIGNS_FOLDER_NAME,
+                        parentKey : '',
+                        controller : $controller
+
+                    );
+
 
                     if ($controller) {
                         return DefaultResponseBodies::getSuccessResponse(data: $validatedData, message: "Design saved successfully");
@@ -224,7 +233,15 @@ class DesignController extends Controller
                     $validatedData = $request->validate($validationRules);
                     // Start the update process
                     $controller = true;
-                    RecursiveFunctions::handleUpdateDesigns($validatedData, $request, $this::IMAGES_FOLDER_NAME, $this::IMAGES_INSIDE_DESIGNS_FOLDER_NAME, '', $controller);
+                    RecursiveFunctions::handleUpdateDesigns(
+                        design : $validatedData,
+                        request : $request,
+                        imagesFolderName : $this::IMAGES_FOLDER_NAME,
+                        imagesInsideDesignFolderName : $this::IMAGES_INSIDE_DESIGNS_FOLDER_NAME,
+                        parentKey : '',
+                        controller : $controller
+
+                        );
 
                     if ($controller) {
                         return DefaultResponseBodies::getSuccessResponse(data: $validatedData, message: "Design updated successfully");

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 class FilesFunctions
 {
     public static function saveFile($file, $filesFolderName = null, $imagesFolderName = null) : string {
-        $imageMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp']; // Add more if needed
+        $imageMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp' ,  'image/avif']; // Add more if needed
         $videoMimeTypes = ['video/mp4', 'video/x-msvideo', 'video/x-matroska', 'video/mpeg', 'video/quicktime'];
         $archiveMimeTypes = [
             'application/zip',
