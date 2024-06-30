@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use App\Models\ProductReview;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -30,6 +31,41 @@ class ProductReviewController extends Controller
             }
 
             /**
+             * Fetch reviews averages for a specific product
+             */
+            public function fetchProductReviewsAverages($productId) : JsonResponse
+            {
+                $product = Product::findOrFail($productId);
+                $reviews = $product->productReviews()->get();
+
+                if ($reviews->isEmpty()) {
+                    return DefaultResponseBodies::getSuccessResponse(
+                        data: [
+                            'quality' => 0,
+                            'easeOfUse' => 0,
+                            'communication' => 0,
+                        ],
+                        message: 'No reviews available for this product'
+                    );
+                }
+
+                $qualitySum = $reviews->sum('design_quality_rate');
+                $easeOfUseSum = $reviews->sum('ease_of_use_rate');
+                $communicationSum = $reviews->sum('communication_rate');
+                $reviewCount = $reviews->count();
+
+                return DefaultResponseBodies::getSuccessResponse(
+                    data: [
+                        'quality' => $qualitySum / $reviewCount,
+                        'easeOfUse' => $easeOfUseSum / $reviewCount,
+                        'communication' => $communicationSum / $reviewCount,
+                    ],
+                    message: 'Review averages fetched successfully'
+                );
+            }
+
+
+    /**
              * Display a listing of the deleted resource.
              */
             public function fetchDeleted(Request $request): JsonResponse

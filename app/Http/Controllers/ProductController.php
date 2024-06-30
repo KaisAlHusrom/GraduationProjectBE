@@ -24,7 +24,6 @@ class ProductController extends Controller
                 'productMedia',
                 'productUsedSkills',
                 'productFeatures',
-                'productReviews',
                 'categories',
                 'messages',
             ];
@@ -44,6 +43,7 @@ class ProductController extends Controller
                     perPage: 10,
                 );
             }
+
 
             /**
              * Display a specific record.

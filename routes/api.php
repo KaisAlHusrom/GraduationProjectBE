@@ -12,6 +12,7 @@ use App\Http\Controllers\ElementTypeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductReviewController;
 use App\Http\Controllers\StripePaymentController;
 use App\Http\Controllers\StylePropController;
 use App\Http\Controllers\StylePropsCategoryController;
@@ -79,7 +80,10 @@ Route::middleware(['customAuth'])->group(function () {
         OrderController::class,
         excepts: ['restore', 'fetchDeleted', 'permanentDelete', 'update', 'delete']
     );
+    Route::get('user/orders/coming-orders/fetch-count', [OrderController::class, "fetchComingOrdersCounts"]);
     Route::get('user/orders/coming-orders/fetch', [OrderController::class, "fetchComingOrders"]);
+    Route::get('user/orders/coming-orders/fetch', [OrderController::class, "fetchComingOrders"]);
+    Route::get('user/orders/had-buy-product/{productId}', [OrderController::class, "hadBuyProduct"]);
 
     //Bank cards
     UtilsRoutes::generateResourceUsersRoutes(
@@ -133,6 +137,13 @@ Route::middleware(['customAuth'])->group(function () {
     Route::patch('user/products/{id}', [ProductController::class, 'updateUser']);
     Route::post('user/products', [ProductController::class, 'saveUser']);
 
+    //Product Reviews
+    UtilsRoutes::generateResourceUsersRoutes(
+        "products-reviews",
+        ProductReviewController::class,
+        excepts: ['restore', 'fetchDeleted', 'permanentDelete']
+    );
+    Route::get('user/products-reviews/fetch-averages/{productId}', [ProductReviewController::class, 'fetchProductReviewsAverages']);
 
 
     //Users Payments plans
