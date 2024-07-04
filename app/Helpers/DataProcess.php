@@ -140,12 +140,11 @@ class DataProcess
                 case 'many-to-many':
                     // Apply relational conditions
                     if ($relationValue) {
-                        $query->whereHas($filter['value'], function ($query) use ($relationValue) {
-                            // $relatedModel = $query->getModel()->$filter['value']()->getRelated();
-
+                        $query->where($filter['value'], function ($query) use ($relationValue, $filter) {
+                            $relatedTable = $query->getModel()->getTable();
                             foreach ($relationValue as $relationItem) {
                                 // Check for any of the specified relation IDs
-                                $query->orWhere('id', '=', $relationItem);
+                                $query->orWhere("$relatedTable.id", '=', $relationItem);
                             }
                         });
                     }

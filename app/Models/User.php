@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -15,6 +16,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
     use HasRoles;
     use SoftDeletes;
+    use Billable;
 
 
     /**
@@ -77,9 +79,28 @@ class User extends Authenticatable
     public function paymentPlans()
     {
         return $this->belongsToMany(PaymentPlan::class, 'users_payment_plans')
-            ->withPivot('status', 'expire_date', 'is_active', 'bill_date')
+            ->withPivot('status', 'is_active', 'bill_date')
             ->withTimestamps();
     }
+
+    /**
+     * Get the payment plans associated with the user.
+     */
+    public function userPaymentPlans()
+    {
+        return $this->hasMany(UsersPaymentPlan::class, 'user_id');
+    }
+
+    //get active payment plan
+    public function activePaymentPlan() {
+        return $this->paymentPlans()->wherePivot('is_active', '=', '1')->first();
+    }
+
+    //get active subscription
+    public function activeSubscription() {
+        return $this->subscriptions()->where('ends_at', '=', null)->first();
+    }
+
 
     /**
      * Get the payments for the user.

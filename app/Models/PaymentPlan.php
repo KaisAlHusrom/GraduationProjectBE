@@ -47,7 +47,7 @@ class PaymentPlan extends BaseModel
     public function users()
     {
         return $this->belongsToMany(User::class, 'users_payment_plans')
-            ->withPivot('status', 'expire_date', 'is_active', 'bill_date')
+            ->withPivot('status', 'is_active', 'bill_date')
             ->withTimestamps();
     }
 }

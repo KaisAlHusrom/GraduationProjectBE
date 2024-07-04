@@ -48,7 +48,7 @@ class UsersPayment extends BaseModel
      */
     public function userPaymentPlan()
     {
-        return $this->belongsTo(usersPaymentPlan::class)->with(["paymentPlan"]);
+        return $this->belongsTo(usersPaymentPlan::class)->with(["paymentPlan"])->withTrashed();
     }
 
     /**

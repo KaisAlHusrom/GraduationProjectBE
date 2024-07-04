@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Laravel\Cashier\Subscription;
 
 class AuthController extends Controller
 {
@@ -181,8 +182,18 @@ class AuthController extends Controller
         $userId = $request->user()->id;
 
         // Fetch the user with the paymentPlans relationship
-        $user = User::with(['paymentPlans'])->find($userId);
+        $user = User::find($userId);
 
+        $activePaymentPlan = UsersPaymentPlan::with("paymentPlan")
+            ->where("user_id", "=", $user->id)
+            ->where("is_active", "=", "1")
+            ->first();
+
+        $userSubscription = Subscription::where("user_id", "=", $user->id)
+            ->first();
+
+        $user["active_payment_plan"] = $activePaymentPlan;
+        $user["subscription"] = $userSubscription;
         // Check if the user exists
         if ($user) {
             return DefaultResponseBodies::getSuccessResponse(

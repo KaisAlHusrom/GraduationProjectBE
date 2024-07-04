@@ -46,6 +46,7 @@ class CategoryController extends Controller
                         'products.productReviews',
                         'products.messages',
                         'products.categories',
+                        'products.reviewAverages',
                     ]
                 );
             }

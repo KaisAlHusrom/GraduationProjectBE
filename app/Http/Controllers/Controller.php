@@ -314,6 +314,8 @@ class Controller extends BaseController
         string $imagesFolderName = null,
     ): JsonResponse {
         try {
+
+
             // Resolve the model class
             $model = new $modelClass;
 

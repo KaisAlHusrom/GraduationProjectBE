@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Product extends BaseModel
 {
@@ -64,6 +65,19 @@ class Product extends BaseModel
     public function productReviews()
     {
         return $this->hasMany(ProductReview::class);
+    }
+
+    //averages
+    public function reviewAverages()
+    {
+        return $this->productReviews()
+            ->select(
+                DB::raw('AVG(design_quality_rate) as avg_design_quality_rate'),
+                DB::raw('AVG(ease_of_use_rate) as avg_ease_of_use_rate'),
+                DB::raw('AVG(communication_rate) as avg_communication_rate'),
+                'product_id'
+            )
+            ->groupBy('product_id');
     }
 
     /**

@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UsersPaymentPlan extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -18,7 +19,6 @@ class UsersPaymentPlan extends BaseModel
         'payment_plan_id',
         'user_id',
         'status',
-        'expire_date',
         'is_active',
         'bill_date',
     ];

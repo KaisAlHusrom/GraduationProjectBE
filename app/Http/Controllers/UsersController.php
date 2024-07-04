@@ -11,7 +11,7 @@ class UsersController extends Controller
         private const TITLE = "Users";
             private const MODEL = User::class;
             private const FILES_FIELD_NAMES = ["profile_image"];
-            private const FETCH_WITH = ["paymentPlans"];
+            private const FETCH_WITH = ["paymentPlans", "subscriptions"];
             private const IMAGES_FOLDER_NAME = "UsersProfileImages";
             private const FILES_FOLDER_NAME = null;
 

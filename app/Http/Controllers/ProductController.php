@@ -26,6 +26,7 @@ class ProductController extends Controller
                 'productFeatures',
                 'categories',
                 'messages',
+                'reviewAverages'
             ];
             private const IMAGES_FOLDER_NAME = "ProductsImages";
             private const FILES_FOLDER_NAME = "ProductsFiles";
@@ -43,6 +44,10 @@ class ProductController extends Controller
                     perPage: 10,
                 );
             }
+
+            /*
+             * fetch products based on category
+             */
 
 
             /**

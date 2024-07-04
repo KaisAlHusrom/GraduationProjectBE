@@ -63,6 +63,7 @@ class UsersPaymentPlanController extends Controller
              */
             public function store(Request $request): JsonResponse
             {
+
                 $validationRules = [
                     'payment_plan_id'=>"required",
                     'user_id'=>"required",

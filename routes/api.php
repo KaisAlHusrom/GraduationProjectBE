@@ -14,11 +14,13 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductReviewController;
 use App\Http\Controllers\StripePaymentController;
+use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\StylePropController;
 use App\Http\Controllers\StylePropsCategoryController;
 use App\Http\Controllers\StylePropsValueController;
 use App\Http\Controllers\StyleResponsiveBreakpointController;
 use App\Http\Controllers\StyleStatusController;
+use App\Http\Controllers\SubscriptionsController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\WebProjectController;
 use Illuminate\Support\Facades\Route;
@@ -42,6 +44,10 @@ use Illuminate\Support\Facades\Route;
 Route::post("auth/register", [AuthController::class, 'register']);
 Route::post("auth/login", [AuthController::class, 'login']);
 
+//stripe weebhook
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
+
+
 UtilsRoutes::generateResourceUsersRoutes(
     "products-categories",
     CategoryController::class,
@@ -61,9 +67,21 @@ UtilsRoutes::generateResourceUsersRoutes(
     excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete'],
 );
 
+//reviews for unlogin users
+UtilsRoutes::generateResourceUsersRoutes(
+    "products-reviews",
+    ProductReviewController::class,
+    excepts: ['restore', 'fetchDeleted', 'permanentDelete', 'store', 'update', 'fetchSpecificRecord']
+);
+Route::get('user/products-reviews/fetch-averages/{productId}', [ProductReviewController::class, 'fetchProductReviewsAverages']);
+
+
 //access and reject payments routes, in checkout function I made a simple authentication process
 Route::get('user/success-checkout', [StripePaymentController::class, 'success'])->name('success-checkout');
 Route::get('user/fail-checkout', [StripePaymentController::class, 'fail'])->name('fail-checkout');
+
+Route::get('user/success-subscription-checkout', [SubscriptionsController::class, 'subscriptionSuccess'])->name('subscriptionSuccess');
+Route::get('user/fail-subscription-checkout', [SubscriptionsController::class, 'subscriptionFail'])->name('subscriptionFail');
 
 // ! SANCTUM AUTHENTICATION
 Route::middleware(['customAuth'])->group(function () {
@@ -72,6 +90,10 @@ Route::middleware(['customAuth'])->group(function () {
     Route::get('auth/logout', [AuthController::class, "logout"]);
 
     Route::post('user/checkout', [StripePaymentController::class, 'checkout']);
+
+    Route::post('user/checkout-plan/{plan?}/{price?}', [SubscriptionsController::class, 'checkoutPlan']);
+    Route::post('user/subscription/cancel', [SubscriptionsController::class, 'cancelSubscription']);
+    Route::post('user/subscription/resume', [SubscriptionsController::class, 'resumeSubscription']);
 
 
     //user orders
@@ -141,9 +163,8 @@ Route::middleware(['customAuth'])->group(function () {
     UtilsRoutes::generateResourceUsersRoutes(
         "products-reviews",
         ProductReviewController::class,
-        excepts: ['restore', 'fetchDeleted', 'permanentDelete']
+        excepts: ['restore', 'fetchDeleted', 'permanentDelete', 'index']
     );
-    Route::get('user/products-reviews/fetch-averages/{productId}', [ProductReviewController::class, 'fetchProductReviewsAverages']);
 
 
     //Users Payments plans

@@ -71,6 +71,15 @@ class DefaultResponseBodies extends Controller
         ], 400);
     }
 
+    public static function getUnsubscribedPlanFailResponse($error = "You don't subscripte to appropriate plan", $message = "400 Bad Request"): JsonResponse
+    {
+        return response()->json([
+            'success' => false,
+            'error' => $error,
+            'message' => $message
+        ], 400);
+    }
+
     public static function getUnauthorizedResponse($error = "Unauthorized", $message = "401 Unauthorized"): JsonResponse
     {
         return response()->json([
