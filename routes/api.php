@@ -67,6 +67,13 @@ UtilsRoutes::generateResourceUsersRoutes(
     excepts: ['store', 'update', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete'],
 );
 
+//fetch specific user
+UtilsRoutes::generateResourceUsersRoutes(
+    'users',
+    UsersController::class,
+    excepts: ['store', 'index', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete', 'update']
+);
+
 //reviews for unlogin users
 UtilsRoutes::generateResourceUsersRoutes(
     "products-reviews",
@@ -255,7 +262,7 @@ Route::middleware(['customAuth'])->group(function () {
     UtilsRoutes::generateResourceUsersRoutes(
         'users',
         UsersController::class,
-        excepts: ['store', 'index', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete']
+        excepts: ['store', 'index', 'destroy', 'restore', 'fetchDeleted', 'permanentDelete', 'fetchSpecificRecord']
     );
 
 

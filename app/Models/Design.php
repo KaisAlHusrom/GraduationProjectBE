@@ -24,7 +24,9 @@ class Design extends BaseModel
         'design_type',
         'sequence_number',
         'element_content',
-        'page_id'
+        'page_id',
+        'web_project_id',
+        'position'
     ];
 
     /**
@@ -51,6 +53,12 @@ class Design extends BaseModel
     public function page(): BelongsTo
     {
         return $this->belongsTo(Page::class, 'page_id');
+    }
+
+    //get the web project of the design
+    public function webProject(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(WebProject::class, "web_project_id");
     }
 
     /**

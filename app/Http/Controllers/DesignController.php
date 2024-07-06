@@ -26,7 +26,8 @@ class DesignController extends Controller
                 'elementType',
                 'styles',
                 'parent',
-                'pages',
+                'page',
+                'webProject',
                 'category',
                 'designPropValues.elementProp',
             ];
@@ -138,7 +139,9 @@ class DesignController extends Controller
                         'children' => "array",
                         'styles' => "array",
                         'page_id' => "",
-                        'design_prop_values'=>""
+                        'design_prop_values'=>"",
+                        'web_project_id' =>"",
+                        'position'=>"",
                     ];
 
 
@@ -227,6 +230,8 @@ class DesignController extends Controller
                         'children' => "array",
                         'styles' => "array",
                         'page_id' => "",
+                        'web_project_id'=>'',
+                        'position'=>'',
                         'design_prop_values' => "",
                     ];
 
