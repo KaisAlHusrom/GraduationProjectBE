@@ -24,7 +24,8 @@ class WebProject extends BaseModel
         'project_description',
         'is_template',
         'is_own_project',
-        'is_published'
+        'is_published
+        '
     ];
 
     /**
@@ -57,5 +58,21 @@ class WebProject extends BaseModel
     public function databases()
     {
         return $this->hasMany(Database::class);
+    }
+    public function designs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Design::class, 'web_project_id')
+            ->with(
+                [
+                    'styles.styleProp',
+                    'styles.styleResponsiveBreakpoint',
+                    'styles.styleStatus',
+                    'children.children.children.children.children.children.children.children.children.children',
+                    'elementType',
+                    'styles',
+                    'parent',
+                    'pages',
+                ]
+            );
     }
 }

@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Design;
 use App\Models\WebProject;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class WebProjectController extends Controller
 {
     private const TITLE = "Web Project";
     private const MODEL = WebProject::class;
     private const FILES_FIELD_NAMES = ["project_logo"];
-    private const FETCH_WITH = ["user" , "pages" , "databases" ];
+    private const FETCH_WITH = ["user" , "pages" , "databases" , "designs"];
     private const IMAGES_FOLDER_NAME = "web_project_Logos";
     private const FILES_FOLDER_NAME = null;
 
@@ -62,37 +64,107 @@ class WebProjectController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        // Validation rules
         $validationRules = [
             'user_id' => "required",
             'project_title' => "required",
             'project_logo' => "required",
-            'project_type'  => "required",
-            'project_job'   => "required",
+            'project_type' => "required",
+            'project_job' => "required",
             'project_description' => "required",
-            'is_template'   => "",
+            'is_template' => "",
             'is_own_project' => "",
             'is_published' => "",
-
-
         ];
 
-        //relations
-        $relationships = [
+        // Validate request data
+        $validatedData = Validator::make($request->all(), $validationRules)->validate();
 
-        ];
+        // Create the new web project
+        $newWebProject = WebProject::create($validatedData);
 
-        // store the prop
-        return $this->storeTemplate(
-            title: $this::TITLE,
-            request: $request,
-            modelClass: $this::MODEL,
-            validationRules: $validationRules,
-            relationships: $relationships,
-            files: $this::FILES_FIELD_NAMES,
-            filesFolderName: $this::FILES_FOLDER_NAME,
-            imagesFolderName: $this::IMAGES_FOLDER_NAME,
-        );
+        // Fetch the template web project along with its pages and designs
+        $templateWebProject = WebProject::with(['pages', 'designs'])
+            ->where("is_template", "1")
+            ->first();
+
+        // Duplicate each design from the template
+        foreach ($templateWebProject->designs as $design) {
+            // Create a new design for the new web project
+            $newDesign = $design->replicate();
+            $newDesign->web_project_id = $newWebProject->id;
+            $newDesign->is_template = 0;
+
+            $newDesign->save();
+
+            // Duplicate each style associated with the design
+            foreach ($design->styles as $style) {
+                $newStyle = $style->replicate();
+                $newStyle->design_id = $newDesign->id;
+                $newStyle->save();
+            }
+
+            // Duplicate each child design recursively
+            $this->duplicateChildren($design, $newDesign);
+        }
+
+        // Duplicate each page from the template
+        foreach ($templateWebProject->pages as $page) {
+            // Create a new page for the new web project
+            $newPage = $page->replicate();
+            $newPage->web_project_id = $newWebProject->id;
+            $newPage->is_template = 0;
+
+            $newPage->save();
+
+            // Duplicate each design associated with the page
+            foreach ($page->designs as $design) {
+                $newDesign = $design->replicate();
+                $newDesign->page_id = $newPage->id;
+                $newDesign->is_template = 0;
+
+                $newDesign->save();
+
+                // Duplicate each style associated with the design
+                foreach ($design->styles as $style) {
+                    $newStyle = $style->replicate();
+                    $newStyle->design_id = $newDesign->id;
+                    $newStyle->save();
+                }
+
+                // Duplicate each child design recursively
+                $this->duplicateChildren($design, $newDesign);
+            }
+        }
+
+        return DefaultResponseBodies::getSuccessResponse(data: $newWebProject, message: "web project created successfully");
     }
+
+    /**
+     * Recursively duplicate children designs.
+     *
+     * @param \App\Models\Design $originalDesign
+     * @param \App\Models\Design $newDesign
+     */
+    protected function duplicateChildren($originalDesign, $newDesign)
+    {
+        foreach ($originalDesign->children as $childDesign) {
+            $newChildDesign = $childDesign->replicate();
+            $newChildDesign->parent_id = $newDesign->id;
+            $newChildDesign->save();
+
+            // Duplicate styles for the child design
+            foreach ($childDesign->styles as $style) {
+                $newStyle = $style->replicate();
+                $newStyle->design_id = $newChildDesign->id;
+                $newStyle->save();
+            }
+
+            // Recursively duplicate the children of this child design
+            $this->duplicateChildren($childDesign, $newChildDesign);
+        }
+    }
+
 
     /*
      * Update the specified resource in storage.
