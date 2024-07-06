@@ -14,12 +14,12 @@ use Illuminate\Support\Str;
 
 class SubscriptionsController extends Controller
 {
-    private const INDIVIDUAL_PLAN_ID = "prod_QOIEBD6W80eZUr";
-    private const INDIVIDUAL_PLAN_MONTHLY_PRICE_ID = "price_1PXVeL2NevGfJdqUFQKY9qC6";
-    private const INDIVIDUAL_PLAN_YEARLY_PRICE_ID = "price_1PXVeL2NevGfJdqUyNHQ13yF";
-    private const ENTERPRISE_PLAN_ID = "prod_QOIHKN4cRyh0Pj";
-    private const ENTERPRISE_PLAN_MONTHLY_PRICE_ID = "price_1PXVgq2NevGfJdqUdFAwbbQV";
-    private const ENTERPRISE_PLAN_YEARLY_PRICE_ID = "price_1PXVgq2NevGfJdqU2MYV0aZw";
+    private const INDIVIDUAL_PLAN_ID = "prod_QQMeC4aUQt4jXc";
+    private const INDIVIDUAL_PLAN_MONTHLY_PRICE_ID = "price_1PZVv3RuhYLylOhDxLuFtC4b";
+    private const INDIVIDUAL_PLAN_YEARLY_PRICE_ID = "price_1PZVv3RuhYLylOhD0Bystipc";
+    private const ENTERPRISE_PLAN_ID = "prod_QQMflgKQgeMeQM";
+    private const ENTERPRISE_PLAN_MONTHLY_PRICE_ID = "price_1PZVwIRuhYLylOhDY89ssv06";
+    private const ENTERPRISE_PLAN_YEARLY_PRICE_ID = "price_1PZVwIRuhYLylOhDdQje5qJ3";
 
 
     // !CANCEL SUBSCRIPTION
