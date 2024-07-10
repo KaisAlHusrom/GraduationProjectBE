@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Config;
 use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
@@ -94,6 +95,19 @@ class User extends Authenticatable
     //get active payment plan
     public function activePaymentPlan() {
         return $this->paymentPlans()->wherePivot('is_active', '=', '1')->first();
+    }
+
+    //check plan feature
+    public function checkFeature($feature)
+    {
+        $paymentPlan = $this->activePaymentPlan();
+
+        $planFeatures = Config::get('plans_features.' . strtolower($paymentPlan->payment_plan_title));
+        if (!$paymentPlan) {
+            return $planFeatures['free'];
+        }
+
+        return $planFeatures[$feature] ?? null;
     }
 
     //get active subscription
