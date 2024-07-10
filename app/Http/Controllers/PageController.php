@@ -61,7 +61,7 @@ class PageController extends Controller
         $validationRules = [
             'page_title' => "required",
             'page_description' => "required",
-            'page_image' => "required",
+            'page_image' => "",
             'is_template' => "",
             'web_project_id' => "required",
             'page_path'=> "",
@@ -94,7 +94,7 @@ class PageController extends Controller
         $validationRules = [
             'page_title' => "required",
             'page_description' => "required",
-            'page_image' => "required",
+            'page_image' => "",
             'is_template' => "",
             'web_project_id' => "required",
             'page_path'=> "",

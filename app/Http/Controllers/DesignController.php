@@ -49,7 +49,7 @@ class DesignController extends Controller
                     title: $this::TITLE,
                     request: $request,
                     modelClass: $this::MODEL,
-                    with: [...$this::FETCH_WITH, 'children'],
+                    with: [...$this::FETCH_WITH, 'children.children.children.children.children.children.children'],
                     perPage: 10,
                 );
             }
