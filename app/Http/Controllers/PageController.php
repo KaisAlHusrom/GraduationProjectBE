@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Page;
+use App\Models\WebProject;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PageController extends Controller
 {
@@ -58,6 +60,8 @@ class PageController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+
+
         $validationRules = [
             'page_title' => "required",
             'page_description' => "required",
@@ -67,6 +71,17 @@ class PageController extends Controller
             'page_path'=> "",
             "id" => ""
         ];
+
+        //create web project based on plan
+        $user = Auth::user();
+        $plan = $user->activePaymentPlan();
+        $webProject = WebProject::findOrFail($request->web_project_id);
+
+        if (!$plan && $webProject->pages()->count() >= 3) {
+            return DefaultResponseBodies::getUnsubscribedPlanFailResponse(
+                message: "In Free plan you can create up to 3 pages for each web project only"
+            );
+        }
 
         //relations
         $relationships = [

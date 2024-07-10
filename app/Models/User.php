@@ -148,4 +148,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(BankCard::class);
     }
+
+    /**
+     * Get the web projects who owns the project.
+     */
+    public function webProjects()
+    {
+        return $this->hasMany(WebProject::class, 'user_id');
+    }
 }

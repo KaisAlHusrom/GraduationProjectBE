@@ -6,6 +6,7 @@ use App\Models\Design;
 use App\Models\WebProject;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class WebProjectController extends Controller
@@ -64,6 +65,23 @@ class WebProjectController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        //create web project based on plan
+        $user = Auth::user();
+        $plan = $user->activePaymentPlan();
+
+        if ($plan && $plan->payment_plan_title === "Individual") {
+            if ($user->webProjects()->count() >= 3) {
+                return DefaultResponseBodies::getUnsubscribedPlanFailResponse(
+                    message: "In Individual plan you can create up to 3 web projects only"
+                );
+            }
+        } elseif (!$plan && $user->webProjects()->count() >= 1) {
+            return DefaultResponseBodies::getUnsubscribedPlanFailResponse(
+                message: "In Free plan you can create up to 1 web projects only"
+            );
+        }
+
+
         // Validation rules
         $validationRules = [
             'user_id' => "required",
