@@ -5,17 +5,45 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ProductReview extends Model
+class ProductReview extends BaseModel
 {
     use HasFactory;
 
-    //many to one
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'user_id',
+        'product_id',
+        'design_quality_rate',
+        'ease_of_use_rate',
+        'communication_rate',
+        'comment',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'id' => 'string',
+        // Add any other attributes that you want to cast here
+    ];
+
+    /**
+     * Get the user who wrote the review.
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    //many to one
+    /**
+     * Get the product being reviewed.
+     */
     public function product()
     {
         return $this->belongsTo(Product::class);

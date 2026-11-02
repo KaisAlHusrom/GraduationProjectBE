@@ -2,9 +2,190 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
+use App\Models\ProductReview;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ProductReviewController extends Controller
 {
-    //
+        private const TITLE = "Product Reviews";
+            private const MODEL = ProductReview::class;
+            private const FILES_FIELD_NAMES = [];
+            private const FETCH_WITH = ['user', 'product'];
+            private const IMAGES_FOLDER_NAME = null;
+            private const FILES_FOLDER_NAME = null;
+
+            /**
+             * Display a listing of the resource.
+             */
+            public function index(Request $request): JsonResponse
+            {
+                return $this->indexTemplate(
+                    title: $this::TITLE,
+                    request: $request,
+                    modelClass: $this::MODEL,
+                    with: $this::FETCH_WITH,
+                    perPage: 10,
+                );
+            }
+
+            /**
+             * Fetch reviews averages for a specific product
+             */
+            public function fetchProductReviewsAverages($productId) : JsonResponse
+            {
+                $product = Product::findOrFail($productId);
+                $reviews = $product->productReviews()->get();
+
+                if ($reviews->isEmpty()) {
+                    return DefaultResponseBodies::getSuccessResponse(
+                        data: [
+                            'quality' => 0,
+                            'easeOfUse' => 0,
+                            'communication' => 0,
+                        ],
+                        message: 'No reviews available for this product'
+                    );
+                }
+
+                $qualitySum = $reviews->sum('design_quality_rate');
+                $easeOfUseSum = $reviews->sum('ease_of_use_rate');
+                $communicationSum = $reviews->sum('communication_rate');
+                $reviewCount = $reviews->count();
+
+                return DefaultResponseBodies::getSuccessResponse(
+                    data: [
+                        'quality' => $qualitySum / $reviewCount,
+                        'easeOfUse' => $easeOfUseSum / $reviewCount,
+                        'communication' => $communicationSum / $reviewCount,
+                    ],
+                    message: 'Review averages fetched successfully'
+                );
+            }
+
+
+    /**
+             * Display a listing of the deleted resource.
+             */
+            public function fetchDeleted(Request $request): JsonResponse
+            {
+                return $this->fetchDeletedTemplate(
+                    title: $this::TITLE,
+                    request: $request,
+                    modelClass: $this::MODEL,
+                    with: $this::FETCH_WITH,
+                    perPage: 10,
+                );
+            }
+
+            /**
+             * Store a newly created resource in storage.
+             */
+            public function store(Request $request): JsonResponse
+            {
+                $validationRules = [
+                    'user_id'=>"required",
+                    'product_id'=>"required",
+                    'design_quality_rate'=>"required",
+                    'ease_of_use_rate'=>"required",
+                    'communication_rate'=>"required",
+                    'comment'=>"required",
+                ];
+
+                //relations
+                $relationships = [
+                ];
+
+                // store the prop
+                return $this->storeTemplate(
+                    title: $this::TITLE,
+                    request: $request,
+                    modelClass: $this::MODEL,
+                    validationRules: $validationRules,
+                    relationships: $relationships,
+                    files: $this::FILES_FIELD_NAMES,
+                    filesFolderName: $this::FILES_FOLDER_NAME,
+                    imagesFolderName: $this::IMAGES_FOLDER_NAME,
+                );
+            }
+
+
+
+            /**
+             * Update the specified resource in storage.
+             */
+            public function update(Request $request, $id): JsonResponse
+            {
+                $validationRules = [
+                    'design_quality_rate'=>"required",
+                    'ease_of_use_rate'=>"required",
+                    'communication_rate'=>"required",
+                    'comment'=>"required",
+                ];
+
+                //relations
+                $relationships = [
+                    'user',
+                    'product'
+                ];
+
+
+                // Call storeTemplate function to store the post and its related models
+                return $this->updateTemplate(
+                    title: $this::TITLE,
+                    request: $request,
+                    resourceId: $id,
+                    modelClass: $this::MODEL,
+                    validationRules: $validationRules,
+                    relationships: $relationships,
+                    files: $this::FILES_FIELD_NAMES,
+                    filesFolderName: $this::FILES_FOLDER_NAME,
+                    imagesFolderName: $this::IMAGES_FOLDER_NAME,
+                );
+            }
+
+
+            /**
+             * Remove the specified resources from storage.
+             */
+            public function destroy($ids): JsonResponse
+            {
+                return $this->destroyTemplate(
+                    ids: $ids,
+                    modelClass: $this::MODEL,
+                    title: $this::TITLE,
+                );
+            }
+
+
+            /**
+             * Restore the deleted specified resource from storage.
+             */
+            public function restore($ids): JsonResponse
+            {
+                return $this->restoreTemplate(
+                    ids: $ids,
+                    modelClass: $this::MODEL,
+                    title: $this::TITLE,
+                );
+            }
+
+            /**
+             * Permanently delete the specified resources.
+             */
+            public function permanentDelete($ids): JsonResponse
+            {
+
+                return $this->permanentDeleteTemplate(
+                    ids: $ids,
+                    modelClass: $this::MODEL,
+                    title: $this::TITLE,
+                    fileColumnNames: $this::FILES_FIELD_NAMES,
+                    filesFolderName: $this::FILES_FOLDER_NAME,
+                    imagesFolderName: $this::IMAGES_FOLDER_NAME,
+                );
+            }
+
+
 }
